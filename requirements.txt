@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+langchain
+langchain
+langchain-text-splitters
+langchain_groq
+langchain_community
+pypdf
+groq
+langgraph
+crewai
+crewai_tools
+yt_dlp
+faiss-cpu
