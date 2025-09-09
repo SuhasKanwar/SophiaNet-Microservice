@@ -48,11 +48,12 @@ async def generate_chat(request: fastapi.Request) -> dict:
         data = await request.json()
         prompt = data.get("prompt", "")
         session_history = data.get("session_history", [])
+        files = data.get("files", [])
         if not prompt:
             raise SophiaNetException("Prompt is required.")
 
-        response = llama.generate_response(prompt, session_history)
-        
+        response = llama.generate_response(prompt, session_history, files)
+
         return {
             "status": 200,
             "response": response

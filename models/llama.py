@@ -7,9 +7,9 @@ class Llama:
     def __init__(self, model_name: str):
         self.model_name = model_name
 
-    def generate_response(self, prompt: str, session_history: list) -> str:
+    def generate_response(self, prompt: str, session_history: list, files: list) -> str:
         try:
-            response = f"Response from {self.model_name} for prompt: {prompt} with history: {session_history}"
+            response = f"Response from {self.model_name} for prompt: {prompt} with history: {session_history} and files: {files}"
             return response
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")
