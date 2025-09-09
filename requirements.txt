@@ -14,3 +14,4 @@ crewai
 crewai_tools
 yt_dlp
 faiss-cpu
+python-multipart

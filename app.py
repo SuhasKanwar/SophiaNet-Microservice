@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 
 import fastapi
 import uvicorn
@@ -45,19 +46,33 @@ def health_check() -> dict:
 @app.post('/generate-chat', tags=["Generate"])
 async def generate_chat(request: fastapi.Request) -> dict:
     try:
-        data = await request.json()
-        prompt = data.get("prompt", "")
-        session_history = data.get("session_history", [])
-        files = data.get("files", [])
+        content_type = request.headers.get("content-type", "")
+        prompt = ""
+        session_history = []
+
+        if "multipart/form-data" in content_type:
+            form = await request.form()
+            prompt = form.get("prompt", "").strip()
+            session_history_str = form.get("session_history", "[]")
+            session_history = json.loads(session_history_str) if session_history_str else []
+            uploads = form.getlist("files") or []
+        else:
+            data = await request.json()
+            prompt = data.get("prompt", "").strip()
+            session_history = data.get("session_history", [])
+            uploads = data.get("files", []) or []
+
         if not prompt:
             raise SophiaNetException("Prompt is required.")
 
-        response = llama.generate_response(prompt, session_history, files)
+        response = llama.generate_response(prompt, session_history, uploads)
 
         return {
             "status": 200,
             "response": response
         }
+    except SophiaNetException:
+        raise
     except Exception as e:
         logger.error(f"Error in /generate-chat: {str(e)}")
         raise SophiaNetException("An error occurred while generating chat response.", sys)
