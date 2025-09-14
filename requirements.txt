@@ -15,3 +15,5 @@ crewai_tools
 yt_dlp
 faiss-cpu
 python-multipart
+langchain_core
+langchain_groq

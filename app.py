@@ -5,6 +5,7 @@ import json
 import fastapi
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+from langchain_core.messages import HumanMessage, AIMessage
 
 from models.llama import Llama
 from config.models import LLAMA
@@ -54,13 +55,20 @@ async def generate_chat(request: fastapi.Request) -> dict:
             form = await request.form()
             prompt = form.get("prompt", "").strip()
             session_history_str = form.get("session_history", "[]")
-            session_history = json.loads(session_history_str) if session_history_str else []
+            session_history_raw = json.loads(session_history_str) if session_history_str else []
             uploads = form.getlist("files") or []
         else:
             data = await request.json()
             prompt = data.get("prompt", "").strip()
-            session_history = data.get("session_history", [])
+            session_history_raw = data.get("session_history", [])
             uploads = data.get("files", []) or []
+
+        session_history = []
+        for msg in session_history_raw:
+            if msg.get("role") == "user":
+                session_history.append(HumanMessage(content=msg.get("content", "")))
+            elif msg.get("role") == "assistant":
+                session_history.append(AIMessage(content=msg.get("content", "")))
 
         if not prompt:
             raise SophiaNetException("Prompt is required.")
