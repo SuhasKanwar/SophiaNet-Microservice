@@ -44,7 +44,7 @@ def health_check() -> dict:
         "message": "SophiaNet microservice is healthy and running."
     }
 
-@app.post('/generate-chat', tags=["Generate"])
+@app.post('/generate', tags=["Generate"])
 async def generate_chat(request: fastapi.Request) -> dict:
     try:
         content_type = request.headers.get("content-type", "")
@@ -91,7 +91,7 @@ async def generate_chat(request: fastapi.Request) -> dict:
     except SophiaNetException:
         raise
     except Exception as e:
-        logger.error(f"Error in /generate-chat: {str(e)}")
+        logger.error(f"Error in /generate: {str(e)}")
         raise SophiaNetException("An error occurred while generating chat response.", sys)
 
 @app.exception_handler(SophiaNetException)

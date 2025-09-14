@@ -20,3 +20,4 @@ langchain_groq
 langchain_text_splitters
 langchain_huggingface
 sentence-transformers
+boto3
