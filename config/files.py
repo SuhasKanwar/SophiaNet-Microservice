@@ -1,0 +1,1 @@
+ALLOWED_FILE_TYPES = {"pdf", "txt", "md"}  # images (png, jpg, jpeg) intentionally excluded for now

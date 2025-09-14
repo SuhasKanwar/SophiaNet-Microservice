@@ -31,7 +31,7 @@ app.add_middleware(
 llama = Llama(model_name=LLAMA["MODEL_NAME"])
 
 @app.get("/", tags=["Root"])
-def read_root() -> dict:
+def root() -> dict:
     return {
         "status": 200,
         "message": "Welcome to SophiaNet. Visit /docs for API documentation."
@@ -56,12 +56,21 @@ async def generate_chat(request: fastapi.Request) -> dict:
             prompt = form.get("prompt", "").strip()
             session_history_str = form.get("session_history", "[]")
             session_history_raw = json.loads(session_history_str) if session_history_str else []
-            uploads = form.getlist("files") or []
+            uploads_raw = form.getlist("files") or []
+            files_payload = []
+            for f in uploads_raw:
+                if hasattr(f, "filename"):
+                    data = await f.read()
+                    files_payload.append({"filename": f.filename, "content": data})
         else:
             data = await request.json()
             prompt = data.get("prompt", "").strip()
             session_history_raw = data.get("session_history", [])
-            uploads = data.get("files", []) or []
+            json_files = data.get("files", []) or []
+            files_payload = []
+            for f in json_files:
+                if isinstance(f, dict):
+                    files_payload.append(f)
 
         session_history = []
         for msg in session_history_raw:
@@ -73,7 +82,7 @@ async def generate_chat(request: fastapi.Request) -> dict:
         if not prompt:
             raise SophiaNetException("Prompt is required.")
 
-        response = llama.generate_response(prompt, session_history, uploads)
+        response = llama.generate_response(prompt, session_history, files_payload)
 
         return {
             "status": 200,
