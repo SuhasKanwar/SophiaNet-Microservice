@@ -4,15 +4,16 @@ import json
 import base64
 import io
 from PIL import Image
-from config.models import STABLE_DIFFUSION
 from utils.logger import logger
 from utils.exception import SophiaNetException
+from utils.s3_syncer import S3Syncer
 
-class StableDiffusion():
-    def __init__(self):
-        self.model_id = STABLE_DIFFUSION["MODEL_ID"]
-        self.client = boto3.client(STABLE_DIFFUSION["RUNTIME"], region_name=STABLE_DIFFUSION["REGION"])
-    
+class StableDiffusion(S3Syncer):
+    def __init__(self, model_id: str, runtime: str, region: str, bucket_name: str, object_key: str=""):
+        self.model_id = model_id
+        self.client = boto3.client(runtime, region_name=region)
+        super().__init__(bucket_name, object_key)
+
     def generate_image(self, prompt: str):
         try:
             response = self.client.invoke_model(
@@ -29,3 +30,15 @@ class StableDiffusion():
         except Exception as e:
             logger.error(f"Stable Diffusion error: {str(e)}")
             raise SophiaNetException(f"Stable Diffusion error: {str(e)}", sys)
+    
+    def generate_and_upload_image(self, prompt: str) -> str:
+        try:
+            image = self.generate_image(prompt)
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format='PNG')
+            img_byte_arr = img_byte_arr.getvalue()
+            s3_url = self.upload_file(img_byte_arr, content_type="image/png")
+            return s3_url
+        except Exception as e:
+            logger.error(f"Error in generate_and_upload_image: {str(e)}")
+            raise SophiaNetException(f"Error in generate_and_upload_image: {str(e)}", sys)

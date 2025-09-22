@@ -8,7 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage
 
 from models.llama import Llama
-from config.models import LLAMA
+from models.stable_diffusion import StableDiffusion
+from config.models import LLAMA, STABLE_DIFFUSION
+from config.cloud import S3_BUCKET
 
 from utils.logger import logger
 from utils.exception import SophiaNetException
@@ -28,7 +30,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 llama = Llama(model_name=LLAMA["MODEL_NAME"])
+stability = StableDiffusion(
+    model_id=STABLE_DIFFUSION["MODEL_ID"],
+    runtime=STABLE_DIFFUSION["RUNTIME"],
+    region=STABLE_DIFFUSION["REGION"],
+    bucket_name=S3_BUCKET["AWS_S3_BUCKET_NAME"],
+    object_key=S3_BUCKET["AWS_S3_IMAGES_OBJECT_KEY"]
+)
 
 @app.get("/", tags=["Root"])
 def root() -> dict:
@@ -88,11 +98,35 @@ async def generate_chat(request: fastapi.Request) -> dict:
             "status": 200,
             "response": response
         }
-    except SophiaNetException:
-        raise
     except Exception as e:
         logger.error(f"Error in /generate: {str(e)}")
         raise SophiaNetException("An error occurred while generating chat response.", sys)
+
+@app.post('/generate-image', tags=["Generate Image"])
+async def generate_image(request: fastapi.Request) -> dict:
+    try:
+        content_type = request.headers.get("content-type", "")
+        prompt = ""
+
+        if "multipart/form-data" in content_type:
+            form = await request.form()
+            prompt = form.get("prompt", "").strip()
+        else:
+            data = await request.json()
+            prompt = data.get("prompt", "").strip()
+
+        if not prompt:
+            raise SophiaNetException("Prompt is required.")
+
+        s3_url = stability.generate_and_upload_image(prompt)
+
+        return {
+            "status": 200,
+            "image_url": s3_url
+        }
+    except Exception as e:
+        logger.error(f"Error in /generate-image: {str(e)}")
+        raise SophiaNetException("An error occurred while generating image.", sys)
 
 @app.exception_handler(SophiaNetException)
 def sophianet_exception_handler(request: fastapi.Request, exc: SophiaNetException):

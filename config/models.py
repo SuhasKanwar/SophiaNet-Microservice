@@ -5,5 +5,5 @@ LLAMA = {
 STABLE_DIFFUSION = {
     "MODEL_ID": "stability.sd3-large-v1:0",
     "RUNTIME": "bedrock-runtime",
-    "REGION": "us-east-2"
+    "REGION": "us-west-2"
 }
