@@ -31,7 +31,7 @@ class StableDiffusion(S3Syncer):
             logger.error(f"Stable Diffusion error: {str(e)}")
             raise SophiaNetException(f"Stable Diffusion error: {str(e)}", sys)
     
-    def generate_and_upload_image(self, prompt: str) -> str:
+    def generate_response(self, prompt: str) -> str:
         try:
             image = self.generate_image(prompt)
             img_byte_arr = io.BytesIO()
@@ -40,5 +40,5 @@ class StableDiffusion(S3Syncer):
             s3_url = self.upload_file(img_byte_arr, content_type="image/png")
             return s3_url
         except Exception as e:
-            logger.error(f"Error in generate_and_upload_image: {str(e)}")
-            raise SophiaNetException(f"Error in generate_and_upload_image: {str(e)}", sys)
+            logger.error(f"Error in generate_response: {str(e)}")
+            raise SophiaNetException(f"Error in generate_response: {str(e)}", sys)

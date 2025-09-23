@@ -7,3 +7,7 @@ STABLE_DIFFUSION = {
     "RUNTIME": "bedrock-runtime",
     "REGION": "us-west-2"
 }
+
+ROUTER_MODEL = {
+    "MODEL": ""
+}
