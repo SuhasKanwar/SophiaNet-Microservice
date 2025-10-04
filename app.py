@@ -32,16 +32,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-llama = Llama(model_name=LLAMA["MODEL_NAME"])
+llama = Llama(
+    model_name=LLAMA["MODEL_NAME"],
+    chunk_size=LLAMA["CHUNK_SIZE"],
+    chunk_overlap=LLAMA["CHUNK_OVERLAP"]
+)
 stability = StableDiffusion(
     model_id=STABLE_DIFFUSION["MODEL_ID"],
     runtime=STABLE_DIFFUSION["RUNTIME"],
     region=STABLE_DIFFUSION["REGION"],
+    max_tokens=STABLE_DIFFUSION["MAX_TOKENS"],
     bucket_name=S3_BUCKET["AWS_S3_BUCKET_NAME"],
-    object_key=S3_BUCKET["AWS_S3_IMAGES_OBJECT_KEY"]
+    object_key=S3_BUCKET["AWS_S3_IMAGES_OBJECT_KEY"],
+    chunk_size=STABLE_DIFFUSION["CHUNK_SIZE"],
+    chunk_overlap=STABLE_DIFFUSION["CHUNK_OVERLAP"]
 )
-
-router = ModelRouter(router_model=ROUTER_MODEL["MODEL"])
+router = ModelRouter(router_model=ROUTER_MODEL["MODEL_NAME"])
 
 @app.get("/", tags=["Root"])
 def root() -> dict:
@@ -103,8 +109,8 @@ async def generate_response(request: fastapi.Request) -> dict:
                 "model": "llama",
                 "response": response
             }
-        elif classification == "iamge":
-            s3_url = stability.generate_response(prompt)
+        elif classification == "image":
+            s3_url = stability.generate_response(prompt, session_history, files_payload)
             return {
                 "status": 200,
                 "model": "stable_diffusion",
@@ -174,18 +180,40 @@ async def generate_image(request: fastapi.Request) -> dict:
     try:
         content_type = request.headers.get("content-type", "")
         prompt = ""
+        session_history = []
 
         if "multipart/form-data" in content_type:
             form = await request.form()
             prompt = form.get("prompt", "").strip()
+            session_history_str = form.get("session_history", "[]")
+            session_history_raw = json.loads(session_history_str) if session_history_str else []
+            uploads_raw = form.getlist("files") or []
+            files_payload = []
+            for f in uploads_raw:
+                if hasattr(f, "filename"):
+                    data = await f.read()
+                    files_payload.append({"filename": f.filename, "content": data})
         else:
             data = await request.json()
             prompt = data.get("prompt", "").strip()
+            session_history_raw = data.get("session_history", [])
+            json_files = data.get("files", []) or []
+            files_payload = []
+            for f in json_files:
+                if isinstance(f, dict):
+                    files_payload.append(f)
+
+        session_history = []
+        for msg in session_history_raw:
+            if msg.get("role") == "user":
+                session_history.append(HumanMessage(content=msg.get("content", "")))
+            elif msg.get("role") == "assistant":
+                session_history.append(AIMessage(content=msg.get("content", "")))
 
         if not prompt:
             raise SophiaNetException("Prompt is required.")
 
-        s3_url = stability.generate_response(prompt)
+        s3_url = stability.generate_response(prompt, session_history, files_payload)
 
         return {
             "status": 200,

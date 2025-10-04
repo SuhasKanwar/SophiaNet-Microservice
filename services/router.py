@@ -4,4 +4,4 @@ class ModelRouter:
 
     def route_request(self, prompt: str) -> str:
         # Logic to route request based on prompt
-        return "text"
+        return "image" # or "image"
