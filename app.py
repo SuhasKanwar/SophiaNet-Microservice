@@ -10,8 +10,10 @@ from langchain_core.messages import HumanMessage, AIMessage
 from models.llama import Llama
 from models.stable_diffusion import StableDiffusion
 from services.router import ModelRouter
+
 from config.models import LLAMA, STABLE_DIFFUSION, ROUTER_MODEL
 from config.cloud import S3_BUCKET
+from config.prompts import GENERIC_TOOLS_PROMPT
 
 from utils.logger import logger
 from utils.exception import SophiaNetException
@@ -34,6 +36,7 @@ app.add_middleware(
 
 llama = Llama(
     model_name=LLAMA["MODEL_NAME"],
+    langchain_hub_name=GENERIC_TOOLS_PROMPT["langchain_hub_name"],
     chunk_size=LLAMA["CHUNK_SIZE"],
     chunk_overlap=LLAMA["CHUNK_OVERLAP"]
 )

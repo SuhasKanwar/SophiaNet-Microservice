@@ -7,6 +7,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from services.rag import RAGService
+from tools.generic_tools import GenericTools
 
 from config.prompts import LLAMA_SYSTEM_PROMPT
 
@@ -16,13 +17,15 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 os.environ["HF_TOKEN"] = os.getenv("HUGGINGFACE_ACCESS_TOKEN")
 
-class Llama(RAGService):
-    def __init__(self, model_name: str, chunk_size: int=1000, chunk_overlap: int=150):
+class Llama(RAGService, GenericTools):
+    def __init__(self, model_name: str, langchain_hub_name: str, chunk_size: int=1000, chunk_overlap: int=150):
         RAGService.__init__(self, chunk_size, chunk_overlap)
+        GenericTools.__init__(self, langchain_hub_name=langchain_hub_name)
         self.model_name = model_name
         self.system_prompt = LLAMA_SYSTEM_PROMPT
         try:
             self.llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name=self.model_name)
+            self.llm.bind_tools(self.get_generic_tools())
             self.prompt_template = ChatPromptTemplate.from_messages([
                 self.system_prompt,
                 ("system", "Relevant context (may be partial):\n{context}"),
