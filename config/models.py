@@ -18,5 +18,26 @@ HUGGINGFACE_EMBEDDINGS_MODEL = {
 }
 
 ROUTER_MODEL = {
-    "MODEL_NAME": ""
+    "MODEL_NAME": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "RESPONSE_FORMAT": {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "RouterOutput",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "classification": {
+                        "type": "string",
+                        "enum": ["text", "image"]
+                    },
+                    "image_description": {
+                        "type": "string",
+                        "description": "The generic description about the image in case of image model."
+                    }
+                },
+                "required": ["classification"],
+                "additionalProperties": False
+            }
+        }
+    }
 }

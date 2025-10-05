@@ -47,7 +47,7 @@ stability = StableDiffusion(
     chunk_size=STABLE_DIFFUSION["CHUNK_SIZE"],
     chunk_overlap=STABLE_DIFFUSION["CHUNK_OVERLAP"]
 )
-router = ModelRouter(router_model=ROUTER_MODEL["MODEL_NAME"])
+router = ModelRouter(model_name=ROUTER_MODEL["MODEL_NAME"])
 
 @app.get("/", tags=["Root"])
 def root() -> dict:
@@ -101,7 +101,7 @@ async def generate_response(request: fastapi.Request) -> dict:
         if not prompt:
             raise SophiaNetException("Prompt is required.")
         
-        classification = router.route_request(prompt)
+        classification, image_description = router.route_request(prompt)
         if classification == "text":
             response = llama.generate_response(prompt, session_history, files_payload)
             return {
@@ -114,7 +114,8 @@ async def generate_response(request: fastapi.Request) -> dict:
             return {
                 "status": 200,
                 "model": "stable_diffusion",
-                "image_url": s3_url
+                "image_url": s3_url,
+                "response": image_description or ""
             }
         else:
             return {

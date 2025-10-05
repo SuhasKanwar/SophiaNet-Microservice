@@ -74,13 +74,17 @@ class StableDiffusion(S3Syncer, RAGService):
                 prompt = prompt[0:self.max_tokens]
                 prompt_length = len(prompt)
 
-            context_length = (self.max_tokens - prompt_length) / 2
+            context_length = (self.max_tokens - prompt_length) // 2
 
             enhanced_prompt = self.prompt_template.format_prompt(
-                history=history[0: context_length] if history else [],
+                history=history[0:context_length] if history else [],
                 input=prompt,
-                context=context[0: int(context_length)] if context else "No relevant context found."
+                context=context[0:context_length] if context else "No relevant context found."
             ).to_string()
+
+            if len(enhanced_prompt) > self.max_tokens:
+                enhanced_prompt = enhanced_prompt[:self.max_tokens]
+                logger.warning(f"Enhanced prompt truncated to {self.max_tokens} tokens")
 
             image = self.generate_image(enhanced_prompt)
             img_byte_arr = io.BytesIO()
