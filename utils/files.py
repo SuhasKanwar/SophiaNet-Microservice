@@ -40,6 +40,9 @@ def process_txt(filename: str, data: bytes) -> str:
 def process_md(filename: str, data: bytes) -> str:
     return process_txt(filename, data)
 
+def process_image(filename: str, data: bytes) -> str:
+    pass
+
 def process_files(files: List[Dict]) -> List[Document]:
     docs: List[Document] = []
     for f in files:
@@ -56,6 +59,8 @@ def process_files(files: List[Dict]) -> List[Document]:
             text = process_txt(filename, content)
         elif ext == "md":
             text = process_md(filename, content)
+        elif ext in {"png", "jpg", "jpeg"}:
+            text = process_image(filename, content)
         if not text.strip():
             continue
         docs.append(
