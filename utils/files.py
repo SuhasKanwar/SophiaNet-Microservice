@@ -3,7 +3,17 @@ import base64
 from typing import List, Dict
 from pypdf import PdfReader
 from langchain_core.documents import Document
+
 from config.files import ALLOWED_FILE_TYPES
+from config.models import IMAGE_CAPTIONING_MODEL
+
+from services.image_captioning import ImageCaptioningService
+
+image_captioning = ImageCaptioningService(
+    model_name=IMAGE_CAPTIONING_MODEL["MODEL_NAME"],
+    task=IMAGE_CAPTIONING_MODEL["TASK"],
+    processor_name=IMAGE_CAPTIONING_MODEL["PROCESSOR"]
+)
 
 def _normalize_file_input(file_obj):
     """
@@ -41,7 +51,11 @@ def process_md(filename: str, data: bytes) -> str:
     return process_txt(filename, data)
 
 def process_image(filename: str, data: bytes) -> str:
-    pass
+    try:
+        caption = image_captioning.generate_caption(data)
+        return f"Based on the given data generate a description of the image, the given data is just for reference: Name of the file: {filename}\nImage Caption: {caption}"
+    except Exception:
+        return ""
 
 def process_files(files: List[Dict]) -> List[Document]:
     docs: List[Document] = []
@@ -59,7 +73,7 @@ def process_files(files: List[Dict]) -> List[Document]:
             text = process_txt(filename, content)
         elif ext == "md":
             text = process_md(filename, content)
-        elif ext in {"png", "jpg", "jpeg"}:
+        elif ext == "png" or ext == "jpg" or ext == "jpeg":
             text = process_image(filename, content)
         if not text.strip():
             continue

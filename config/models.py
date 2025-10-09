@@ -5,7 +5,7 @@ LLAMA = {
 }
 
 STABLE_DIFFUSION = {
-    "MODEL_ID": "stability.sd3-5-large-v1:0",
+    "MODEL_ID": "stability.stable-image-core-v1:1",
     "RUNTIME": "bedrock-runtime",
     "REGION": "us-west-2",
     "MAX_TOKENS": 77,
@@ -40,4 +40,10 @@ ROUTER_MODEL = {
             }
         }
     }
+}
+
+IMAGE_CAPTIONING_MODEL = {
+    "MODEL_NAME": "Salesforce/blip-image-captioning-base",
+    "TASK": "image-captioning",
+    "PROCESSOR": "Salesforce/blip-image-captioning-base"
 }

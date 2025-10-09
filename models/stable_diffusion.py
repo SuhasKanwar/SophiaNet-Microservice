@@ -23,9 +23,9 @@ class StableDiffusion(S3Syncer, RAGService):
         self.max_tokens = max_tokens
         self.system_prompt = STABLE_DIFFUSION_SYSTEM_PROMPT
         self.prompt_template = ChatPromptTemplate.from_messages([
-            self.system_prompt,
-            ("system", "Relevant context:\n{context}"),
-            MessagesPlaceholder(variable_name="history"),
+            # self.system_prompt,
+            # ("system", "Relevant context:\n{context}"),
+            # MessagesPlaceholder(variable_name="history"),
             ("human", "{input}")
         ])
 
@@ -77,9 +77,9 @@ class StableDiffusion(S3Syncer, RAGService):
             context_length = (self.max_tokens - prompt_length) // 2
 
             enhanced_prompt = self.prompt_template.format_prompt(
-                history=history[0:context_length] if history else [],
+                # history=history[0:context_length] if history else [],
                 input=prompt,
-                context=context[0:context_length] if context else "No relevant context found."
+                # context=context[0:context_length] if context else "No relevant context found."
             ).to_string()
 
             if len(enhanced_prompt) > self.max_tokens:
