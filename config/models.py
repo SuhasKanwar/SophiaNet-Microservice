@@ -47,3 +47,9 @@ IMAGE_CAPTIONING_MODEL = {
     "TASK": "image-captioning",
     "PROCESSOR": "Salesforce/blip-image-captioning-base"
 }
+
+CLIP_MODEL = {
+    "MODEL_NAME": "openai/clip-vit-base-patch32",
+    "PROCESSOR": "openai/clip-vit-base-patch32",
+    "EMBEDDING_DIM": 512
+}

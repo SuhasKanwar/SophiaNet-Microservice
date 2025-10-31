@@ -53,7 +53,7 @@ def process_md(filename: str, data: bytes) -> str:
 def process_image(filename: str, data: bytes) -> str:
     try:
         caption = image_captioning.generate_caption(data)
-        return f"Based on the given data generate a description of the image, the given data is just for reference: Name of the file: {filename}\nImage Caption: {caption}"
+        return f"Based on the given data generate a description of the image, it should be descriptive, the given data is just for reference: Name of the file: {filename}\nImage Caption: {caption}"
     except Exception:
         return ""
 
