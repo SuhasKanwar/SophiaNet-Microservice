@@ -19,6 +19,7 @@ from config.prompts import GENERIC_TOOLS_PROMPT, DIAGRAM_GENERATION_SYSTEM_PROMP
 from utils.logger import logger
 from utils.exception import SophiaNetException
 from utils.youtube import get_youtube_transcript
+from utils.ocr import get_text
 
 from dotenv import load_dotenv
 
@@ -233,11 +234,34 @@ async def generate_image(request: fastapi.Request) -> dict:
 @app.post('/process-ocr', tags=["ocr"])
 async def process_ocr(request: fastapi.Request) -> dict:
     try:
+        content_type = request.headers.get("content-type", "")
+        prompt = ""
+        files_payload = []
+
+        if "multipart/form-data" in content_type:
+            form = await request.form()
+            prompt = (form.get("prompt") or "").strip()
+            uploads_raw = form.getlist("files") or []
+            for f in uploads_raw:
+                if hasattr(f, "filename"):
+                    data = await f.read()
+                    files_payload.append({"filename": f.filename, "content": data})
+        else:
+            data = await request.json()
+            prompt = (data.get("prompt") or "").strip()
+            json_files = data.get("files", []) or []
+            for f in json_files:
+                if isinstance(f, dict) and "content" in f and "filename" in f:
+                    files_payload.append(f)
+
+        extracted_text = get_text(files_payload)
+
         return {
             "status": 200,
-            "message": "OCR processing endpoint is under development.",
-            "model": "LLaMA",
-            "response": "Dummy OCR response."
+            "message": "OCR processed successfully.",
+            "model": "ocr",
+            "response": extracted_text,
+            "prompt": prompt
         }
     except Exception as e:
         logger.error(f"Error in /process-ocr: {str(e)}")

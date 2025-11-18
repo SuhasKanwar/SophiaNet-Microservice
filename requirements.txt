@@ -23,3 +23,6 @@ wikipedia
 arxiv
 ddgs
 youtube-transcript-api
+torchvision
+pillow
+pytesseract
