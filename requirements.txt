@@ -9,8 +9,6 @@ langchain_community
 pypdf
 groq
 langgraph
-crewai
-crewai_tools
 yt_dlp
 faiss-cpu
 python-multipart
@@ -24,3 +22,4 @@ duckduckgo-search
 wikipedia
 arxiv
 ddgs
+youtube-transcript-api

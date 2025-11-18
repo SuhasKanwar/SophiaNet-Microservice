@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import re
 
 import fastapi
 import uvicorn
@@ -13,10 +14,11 @@ from services.router import ModelRouter
 
 from config.models import LLAMA, STABLE_DIFFUSION, ROUTER_MODEL
 from config.cloud import S3_BUCKET
-from config.prompts import GENERIC_TOOLS_PROMPT
+from config.prompts import GENERIC_TOOLS_PROMPT, DIAGRAM_GENERATION_SYSTEM_PROMPT, YOUTUBE_TRANSCRIPT_PROMPT
 
 from utils.logger import logger
 from utils.exception import SophiaNetException
+from utils.youtube import get_youtube_transcript
 
 from dotenv import load_dotenv
 
@@ -244,11 +246,32 @@ async def process_ocr(request: fastapi.Request) -> dict:
 @app.post('/crawl-youtube', tags=["youtube"])
 async def crawl_youtube(request: fastapi.Request) -> dict:
     try:
+        request_data = await request.json()
+        raw_prompt = (request_data.get("prompt") or "").strip()
+        if not raw_prompt:
+            raise SophiaNetException("Prompt is required and must contain a YouTube URL.")
+
+        url_match = re.search(r'(https?://[^\s]+)', raw_prompt)
+        if not url_match:
+            raise SophiaNetException("No URL found in the prompt. Please include a valid YouTube URL.", sys)
+        youtube_url = url_match.group(1)
+
+        transcript = get_youtube_transcript(youtube_url)
+        if not transcript.strip():
+            raise SophiaNetException("Could not retrieve transcript for the provided YouTube URL.", sys)
+
+        prompt = (
+            f"{YOUTUBE_TRANSCRIPT_PROMPT.content}\n\n"
+            f"Video URL: {youtube_url}\n\n"
+            f"Transcript:\n{transcript}"
+        )
+        response = llama.generate_response(prompt, session_history=[], files=[])
+
         return {
             "status": 200,
-            "message": "YouTube crawling endpoint is under development.",
+            "message": "YouTube transcript processed successfully.",
             "model": "LLaMA",
-            "response": "Dummy YouTube response."
+            "response": response
         }
     except Exception as e:
         logger.error(f"Error in /crawl-youtube: {str(e)}")
@@ -273,15 +296,8 @@ async def generate_diagram(request: fastapi.Request) -> dict:
         if not user_prompt:
             raise SophiaNetException("Prompt is required for diagram generation.")
 
-        system_instruction = (
-            "You are a diagram generation assistant. "
-            "You MUST output only valid Mermaid diagram code, no explanations or backticks. "
-            "Do NOT wrap the output in ```mermaid``` fences. "
-            "Use appropriate Mermaid syntax (e.g., flowchart TD, sequenceDiagram, classDiagram, etc.)."
-        )
-
         full_prompt = (
-            f"{system_instruction}\n\n"
+            f"{DIAGRAM_GENERATION_SYSTEM_PROMPT}\n\n"
             f"User description:\n{user_prompt}\n\n"
             f"Current Mermaid/code context (if any):\n"
             f"{current_code if current_code.strip() else 'None'}\n\n"
