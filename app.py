@@ -228,6 +228,45 @@ async def generate_image(request: fastapi.Request) -> dict:
         logger.error(f"Error in /generate-image: {str(e)}")
         raise SophiaNetException("An error occurred while generating image.", sys)
 
+@app.post('/process-ocr', tags=["ocr"])
+async def process_ocr(request: fastapi.Request) -> dict:
+    try:
+        return {
+            "status": 200,
+            "message": "OCR processing endpoint is under development.",
+            "model": "LLaMA",
+            "response": "Dummy OCR response."
+        }
+    except Exception as e:
+        logger.error(f"Error in /process-ocr: {str(e)}")
+        raise SophiaNetException("An error occurred while processing OCR.", sys)
+
+@app.post('/crawl-youtube', tags=["youtube"])
+async def crawl_youtube(request: fastapi.Request) -> dict:
+    try:
+        return {
+            "status": 200,
+            "message": "YouTube crawling endpoint is under development.",
+            "model": "LLaMA",
+            "response": "Dummy YouTube response."
+        }
+    except Exception as e:
+        logger.error(f"Error in /crawl-youtube: {str(e)}")
+        raise SophiaNetException("An error occurred while crawling YouTube.", sys)
+
+@app.post('/generate-diagram', tags=["generate"])
+async def generate_diagram(request: fastapi.Request) -> dict:
+    try:
+        return {
+            "status": 200,
+            "message": "Diagram generation endpoint is under development.",
+            "model": "LLaMA",
+            "response": "Dummy diagram response."
+        }
+    except Exception as e:
+        logger.error(f"Error in /generate-diagram: {str(e)}")
+        raise SophiaNetException("An error occurred while generating diagram.", sys)
+
 @app.exception_handler(SophiaNetException)
 def sophianet_exception_handler(request: fastapi.Request, exc: SophiaNetException):
     logger.error(f"SophiaNet Exception: {exc.error_message}")
