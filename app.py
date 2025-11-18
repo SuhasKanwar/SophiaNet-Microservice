@@ -257,12 +257,50 @@ async def crawl_youtube(request: fastapi.Request) -> dict:
 @app.post('/generate-diagram', tags=["generate"])
 async def generate_diagram(request: fastapi.Request) -> dict:
     try:
+        content_type = request.headers.get("content-type", "")
+        user_prompt = ""
+        current_code = ""
+
+        if "multipart/form-data" in content_type:
+            form = await request.form()
+            user_prompt = (form.get("prompt") or "").strip()
+            current_code = (form.get("code") or "").strip()
+        else:
+            data = await request.json()
+            user_prompt = (data.get("prompt") or "").strip()
+            current_code = (data.get("code") or "").strip()
+
+        if not user_prompt:
+            raise SophiaNetException("Prompt is required for diagram generation.")
+
+        system_instruction = (
+            "You are a diagram generation assistant. "
+            "You MUST output only valid Mermaid diagram code, no explanations or backticks. "
+            "Do NOT wrap the output in ```mermaid``` fences. "
+            "Use appropriate Mermaid syntax (e.g., flowchart TD, sequenceDiagram, classDiagram, etc.)."
+        )
+
+        full_prompt = (
+            f"{system_instruction}\n\n"
+            f"User description:\n{user_prompt}\n\n"
+            f"Current Mermaid/code context (if any):\n"
+            f"{current_code if current_code.strip() else 'None'}\n\n"
+            "If current Mermaid code is provided, MODIFY and IMPROVE that code to satisfy the user description. "
+            "Otherwise, CREATE a new diagram. "
+            "Always return ONLY the final, complete Mermaid diagram code."
+        )
+
+        response = llama.generate_response(full_prompt, session_history=[], files=[])
+        mermaid_code = response.strip()
+
         return {
             "status": 200,
-            "message": "Diagram generation endpoint is under development.",
+            "message": "Diagram generated successfully.",
             "model": "LLaMA",
-            "response": "Dummy diagram response."
+            "response": mermaid_code
         }
+    except SophiaNetException:
+        raise
     except Exception as e:
         logger.error(f"Error in /generate-diagram: {str(e)}")
         raise SophiaNetException("An error occurred while generating diagram.", sys)
