@@ -1,7 +1,7 @@
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchResults
 from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper
-from langchain.agents import create_openai_tools_agent, AgentExecutor
-from langchain import hub
+from langchain_classic.agents import create_openai_tools_agent, AgentExecutor
+from langchain_classic import hub
 
 class GenericTools:
     def __init__(self, langchain_hub_name: str):

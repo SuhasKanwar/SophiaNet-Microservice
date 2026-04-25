@@ -13,7 +13,7 @@ from config.models import HUGGINGFACE_EMBEDDINGS_MODEL
 from dotenv import load_dotenv
 
 load_dotenv()
-os.environ["HF_TOKEN"] = os.getenv("HUGGINGFACE_ACCESS_TOKEN")
+os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN")
 
 class RAGService:
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 150):

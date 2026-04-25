@@ -26,3 +26,5 @@ youtube-transcript-api
 torchvision
 pillow
 pytesseract
+langchain_classic
+langchain_openai

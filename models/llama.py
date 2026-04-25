@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-os.environ["HF_TOKEN"] = os.getenv("HUGGINGFACE_ACCESS_TOKEN")
+os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN")
 
 class Llama(RAGService, GenericTools):
     def __init__(self, model_name: str, langchain_hub_name: str, chunk_size: int=1000, chunk_overlap: int=150):

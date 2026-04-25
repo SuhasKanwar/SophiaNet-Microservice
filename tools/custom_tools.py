@@ -13,7 +13,7 @@ from utils.logger import logger
 from utils.exception import SophiaNetException
 
 load_dotenv()
-os.environ["HF_TOKEN"] = os.getenv("HUGGINGFACE_ACCESS_TOKEN")
+os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN")
 
 class CustomTools():
     def get_scrape_website_tool(self, url: str) -> str:
