@@ -1,3 +1,9 @@
+from enum import Enum
+
+class IMAGE_MODELS(str, Enum):
+    STABLE_DIFFUSION = "stable_diffusion"
+    FLUX = "flux"
+
 LLAMA = {
     "MODEL_NAME": "llama-3.3-70b-versatile",
     "CHUNK_SIZE": 1000,
@@ -12,6 +18,17 @@ STABLE_DIFFUSION = {
     "CHUNK_SIZE": 1000,
     "CHUNK_OVERLAP": 150
 }
+
+FLUX = {
+    "MODEL_ID": "black-forest-labs/FLUX.1-dev",
+    "PROVIDER": "fal-ai",
+    "MAX_TOKENS": 100,
+    "CHUNK_SIZE": 1000,
+    "CHUNK_OVERLAP": 150
+}
+
+IMAGE_MODEL: IMAGE_MODELS = IMAGE_MODELS.FLUX
+FALLBACK_IMAGE_MODEL: IMAGE_MODELS = IMAGE_MODELS.STABLE_DIFFUSION
 
 HUGGINGFACE_EMBEDDINGS_MODEL = {
     "MODEL_NAME": "sentence-transformers/all-MiniLM-L6-v2"

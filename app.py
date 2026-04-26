@@ -10,9 +10,10 @@ from langchain_core.messages import HumanMessage, AIMessage
 
 from models.llama import Llama
 from models.stable_diffusion import StableDiffusion
+from models.flux import Flux
 from services.router import ModelRouter
 
-from config.models import LLAMA, STABLE_DIFFUSION, ROUTER_MODEL
+from config.models import LLAMA, STABLE_DIFFUSION, ROUTER_MODEL, FLUX, IMAGE_MODEL, IMAGE_MODELS, FALLBACK_IMAGE_MODEL
 from config.cloud import S3_BUCKET
 from config.prompts import GENERIC_TOOLS_PROMPT, DIAGRAM_GENERATION_SYSTEM_PROMPT, YOUTUBE_TRANSCRIPT_PROMPT
 
@@ -53,7 +54,42 @@ stability = StableDiffusion(
     chunk_size=STABLE_DIFFUSION["CHUNK_SIZE"],
     chunk_overlap=STABLE_DIFFUSION["CHUNK_OVERLAP"]
 )
+flux = Flux(
+    model_id=FLUX["MODEL_ID"],
+    provider=FLUX["PROVIDER"],
+    max_tokens=FLUX["MAX_TOKENS"],
+    bucket_name=S3_BUCKET["AWS_S3_BUCKET_NAME"],
+    object_key=S3_BUCKET["AWS_S3_IMAGES_OBJECT_KEY"],
+    chunk_size=FLUX["CHUNK_SIZE"],
+    chunk_overlap=FLUX["CHUNK_OVERLAP"]
+)
 router = ModelRouter(model_name=ROUTER_MODEL["MODEL_NAME"])
+
+IMAGE_GENERATORS = {
+    IMAGE_MODELS.STABLE_DIFFUSION: stability,
+    IMAGE_MODELS.FLUX: flux
+}
+
+ACTIVE_IMAGE_GENERATOR = IMAGE_GENERATORS[IMAGE_MODEL]
+ACTIVE_IMAGE_MODEL_NAME = IMAGE_MODEL.value
+FALLBACK_IMAGE_GENERATOR = IMAGE_GENERATORS[FALLBACK_IMAGE_MODEL]
+FALLBACK_IMAGE_MODEL_NAME = FALLBACK_IMAGE_MODEL.value
+
+
+def _generate_image_with_fallback(prompt: str, session_history: list, files_payload: list) -> tuple[str, str]:
+    try:
+        s3_url = ACTIVE_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
+        return s3_url, ACTIVE_IMAGE_MODEL_NAME
+    except Exception as primary_error:
+        if IMAGE_MODEL == FALLBACK_IMAGE_MODEL:
+            raise primary_error
+
+        logger.warning(
+            f"Primary image model '{ACTIVE_IMAGE_MODEL_NAME}' failed; "
+            f"falling back to '{FALLBACK_IMAGE_MODEL_NAME}'. Error: {str(primary_error)}"
+        )
+        s3_url = FALLBACK_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
+        return s3_url, FALLBACK_IMAGE_MODEL_NAME
 
 @app.get("/", tags=["Root"])
 def root() -> dict:
@@ -116,10 +152,10 @@ async def generate_response(request: fastapi.Request) -> dict:
                 "response": response
             }
         elif classification == "image":
-            s3_url = stability.generate_response(prompt, session_history, files_payload)
+            s3_url, model_name = _generate_image_with_fallback(prompt, session_history, files_payload)
             return {
                 "status": 200,
-                "model": "stable_diffusion",
+                "model": model_name,
                 "image_url": s3_url,
                 "response": image_description or ""
             }
@@ -220,11 +256,11 @@ async def generate_image(request: fastapi.Request) -> dict:
         if not prompt:
             raise SophiaNetException("Prompt is required.")
 
-        s3_url = stability.generate_response(prompt, session_history, files_payload)
+        s3_url, model_name = _generate_image_with_fallback(prompt, session_history, files_payload)
 
         return {
             "status": 200,
-            "model": "stable_diffusion",
+            "model": model_name,
             "image_url": s3_url
         }
     except Exception as e:
