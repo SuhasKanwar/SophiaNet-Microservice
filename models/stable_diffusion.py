@@ -3,9 +3,8 @@ import boto3
 import json
 import base64
 import io
+import re
 from PIL import Image
-
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from utils.logger import logger
 from utils.exception import SophiaNetException
@@ -22,12 +21,39 @@ class StableDiffusion(S3Syncer, RAGService):
         self.client = boto3.client(runtime, region_name=region)
         self.max_tokens = max_tokens
         self.system_prompt = STABLE_DIFFUSION_SYSTEM_PROMPT
-        self.prompt_template = ChatPromptTemplate.from_messages([
-            # self.system_prompt,
-            # ("system", "Relevant context:\n{context}"),
-            # MessagesPlaceholder(variable_name="history"),
-            ("human", "{input}")
-        ])
+
+    @staticmethod
+    def _sanitize_prompt(prompt: str) -> str:
+        if not prompt:
+            return ""
+
+        sanitized_prompt = prompt.strip()
+        sanitized_prompt = re.sub(r"^\s*(human|assistant|system)\s*:\s*", "", sanitized_prompt, flags=re.IGNORECASE)
+        sanitized_prompt = sanitized_prompt.replace("```", "")
+        sanitized_prompt = re.sub(r"\s+", " ", sanitized_prompt).strip()
+        return sanitized_prompt
+
+    def _trim_prompt(self, prompt: str) -> str:
+        if not prompt:
+            return ""
+
+        if len(prompt) <= self.max_tokens:
+            return prompt
+
+        trimmed_prompt = prompt[:self.max_tokens].rsplit(" ", 1)[0].strip()
+        return trimmed_prompt or prompt[:self.max_tokens]
+
+    def _fallback_safe_prompt(self, prompt: str) -> str:
+        base_prompt = self._sanitize_prompt(prompt)
+        base_prompt = self._trim_prompt(base_prompt)
+
+        if not base_prompt:
+            return "A clean, abstract, colorful digital artwork with no text."
+
+        return (
+            f"Create a safe-for-work, non-violent, non-explicit digital illustration of: {base_prompt}. "
+            "No gore, no nudity, no hateful content, no illegal activity, no text overlays."
+        )
 
     def generate_image(self, prompt: str):
         try:
@@ -38,8 +64,10 @@ class StableDiffusion(S3Syncer, RAGService):
                 })
             )
             output_body = json.loads(response["body"].read().decode("utf-8"))
-            
-            logger.info(f"Stable Diffusion response structure: {list(output_body.keys())}")
+
+            finish_reasons = output_body.get("finish_reasons", []) or []
+            if any("filter reason: prompt" in str(reason).lower() for reason in finish_reasons):
+                raise Exception("Prompt blocked by model safety filters (finish reason: prompt)")
             
             base64_output_image = None
             
@@ -66,27 +94,24 @@ class StableDiffusion(S3Syncer, RAGService):
     def generate_response(self, prompt: str, session_history: list, files: list) -> str:
         try:
             self._ingest_files(files)
-            context = self._retrieve_context(prompt)
-            history = session_history or []
+            _ = self._retrieve_context(prompt)
+            _ = session_history or []
 
-            prompt_length = len(prompt)
-            if prompt_length > self.max_tokens:
-                prompt = prompt[0:self.max_tokens]
-                prompt_length = len(prompt)
+            sanitized_prompt = self._sanitize_prompt(prompt)
+            sanitized_prompt = self._trim_prompt(sanitized_prompt)
 
-            context_length = (self.max_tokens - prompt_length) // 2
+            if not sanitized_prompt:
+                raise Exception("Prompt is empty after sanitization")
 
-            enhanced_prompt = self.prompt_template.format_prompt(
-                # history=history[0:context_length] if history else [],
-                input=prompt,
-                # context=context[0:context_length] if context else "No relevant context found."
-            ).to_string()
+            try:
+                image = self.generate_image(sanitized_prompt)
+            except SophiaNetException as model_error:
+                if "Prompt blocked by model safety filters" not in str(model_error):
+                    raise
+                logger.warning("Stable Diffusion prompt filtered; retrying once with safer fallback prompt")
+                safe_prompt = self._fallback_safe_prompt(sanitized_prompt)
+                image = self.generate_image(safe_prompt)
 
-            if len(enhanced_prompt) > self.max_tokens:
-                enhanced_prompt = enhanced_prompt[:self.max_tokens]
-                logger.warning(f"Enhanced prompt truncated to {self.max_tokens} tokens")
-
-            image = self.generate_image(enhanced_prompt)
             img_byte_arr = io.BytesIO()
             image.save(img_byte_arr, format='PNG')
             img_byte_arr = img_byte_arr.getvalue()

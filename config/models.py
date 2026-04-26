@@ -5,7 +5,7 @@ LLAMA = {
 }
 
 STABLE_DIFFUSION = {
-    "MODEL_ID": "stability.stable-image-core-v1:1",
+    "MODEL_ID": "stability.sd3-5-large-v1:0",
     "RUNTIME": "bedrock-runtime",
     "REGION": "us-west-2",
     "MAX_TOKENS": 77,
