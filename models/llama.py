@@ -3,6 +3,7 @@ import os
 
 from utils.logger import logger
 from utils.exception import SophiaNetException
+from utils.metrics import Timer, compute_bleu, compute_rouge_l
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
@@ -37,19 +38,34 @@ class Llama(RAGService, GenericTools):
             logger.error(f"Error initializing LLaMA model: {str(e)}")
             raise SophiaNetException(f"Failed to initialize LLaMA model ({self.model_name})", sys)
 
-    def generate_response(self, prompt: str, session_history: list, files: list) -> str:
+    def _compute_metrics(self, prompt: str, response_text: str, context: str, chunks_retrieved: int, latency_ms: float, has_files: bool) -> dict:
+        metrics = {
+            "latency_ms": latency_ms,
+            "bleu_score": compute_bleu(prompt, response_text),
+            "rouge_l_score": compute_rouge_l(prompt, response_text),
+            "response_length": len(response_text.split()),
+        }
+        if has_files:
+            metrics["retrieval_rouge_l"] = compute_rouge_l(prompt, context) if context else None
+            metrics["chunks_retrieved"] = chunks_retrieved
+        return metrics
+
+    def generate_response(self, prompt: str, session_history: list, files: list) -> dict:
         try:
-            self._ingest_files(files)
+            with Timer() as t:
+                self._ingest_files(files)
+                context, chunks_retrieved = self._retrieve_context(prompt)
 
-            context = self._retrieve_context(prompt)
+                history = session_history or []
+                response = self.chain.invoke({
+                    "history": history,
+                    "input": prompt,
+                    "context": context
+                })
+                text = response.content if hasattr(response, "content") else str(response)
 
-            history = session_history or []
-            response = self.chain.invoke({
-                "history": history,
-                "input": prompt,
-                "context": context
-            })
-            return response.content if hasattr(response, "content") else str(response)
+            metrics = self._compute_metrics(prompt, text, context, chunks_retrieved, t.elapsed_ms, has_files=bool(files))
+            return {"text": text, "performance_metrics": metrics}
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")
             raise SophiaNetException(f"Failed to generate response from LLaMA model ({self.model_name})", sys)

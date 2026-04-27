@@ -1,97 +1,47 @@
 import sys
-import torch
 from io import BytesIO
 from PIL import Image
-from typing import Union, List
-import numpy as np
 
+import torch
 from transformers import CLIPProcessor, CLIPModel
 
 from utils.logger import logger
 from utils.exception import SophiaNetException
+from config.models import CLIP_MODEL
+
 
 class ClipService:
     def __init__(self, model_name: str, processor_name: str):
+        self.model_name = model_name
+        self.processor_name = processor_name
         try:
-            logger.info(f"Loading CLIP model: {model_name}")
-            self.model_name = model_name
-            self.processor = CLIPProcessor.from_pretrained(processor_name)
             self.model = CLIPModel.from_pretrained(model_name)
+            self.processor = CLIPProcessor.from_pretrained(processor_name)
             self.model.eval()
-            logger.info("CLIP model loaded successfully")
+            logger.info(f"CLIP model loaded: {model_name}")
         except Exception as e:
             logger.error(f"Failed to load CLIP model: {str(e)}")
-            raise SophiaNetException(f"Failed to load CLIP model: {str(e)}", sys)
-    
-    def encode_text(self, text: Union[str, List[str]]) -> np.ndarray:
+            raise SophiaNetException(f"Failed to load CLIP model ({model_name})", sys)
+
+    def compute_clip_score(self, prompt: str, image_bytes: bytes) -> float | None:
+        """Compute cosine similarity between a text prompt and an image using CLIP."""
         try:
-            if isinstance(text, str):
-                text = [text]
-            
-            inputs = self.processor(text=text, return_tensors="pt", padding=True, truncation=True)
-            
+            image = Image.open(BytesIO(image_bytes)).convert("RGB")
+            inputs = self.processor(text=[prompt], images=image, return_tensors="pt", padding=True)
+
             with torch.no_grad():
-                text_features = self.model.get_text_features(**inputs)
-                text_features = text_features / text_features.norm(dim=-1, keepdim=True)
-            
-            embeddings = text_features.cpu().numpy()
-            logger.info(f"Encoded {len(text)} text(s) into embeddings of shape {embeddings.shape}")
-            return embeddings
+                outputs = self.model(**inputs)
+
+            # Normalised cosine similarity (0-1 scale)
+            score = outputs.logits_per_image.squeeze().item() / 100.0
+            return round(max(0.0, min(1.0, score)), 4)
         except Exception as e:
-            logger.error(f"Text encoding error: {str(e)}")
-            raise SophiaNetException(f"Text encoding error: {str(e)}", sys)
-    
-    def encode_image(self, image_input: Union[bytes, Image.Image, List[Union[bytes, Image.Image]]]) -> np.ndarray:
-        try:
-            if not isinstance(image_input, list):
-                image_input = [image_input]
-            
-            images = []
-            for img in image_input:
-                if isinstance(img, bytes):
-                    img = Image.open(BytesIO(img)).convert("RGB")
-                elif isinstance(img, Image.Image):
-                    img = img.convert("RGB")
-                else:
-                    raise ValueError(f"Unsupported image type: {type(img)}")
-                images.append(img)
-            
-            inputs = self.processor(images=images, return_tensors="pt", padding=True)
-            
-            with torch.no_grad():
-                image_features = self.model.get_image_features(**inputs)
-                # Normalize embeddings
-                image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-            
-            embeddings = image_features.cpu().numpy()
-            logger.info(f"Encoded {len(images)} image(s) into embeddings of shape {embeddings.shape}")
-            return embeddings
-        except Exception as e:
-            logger.error(f"Image encoding error: {str(e)}")
-            raise SophiaNetException(f"Image encoding error: {str(e)}", sys)
-    
-    def compute_similarity(self, text_embeddings: np.ndarray, image_embeddings: np.ndarray) -> np.ndarray:
-        try:
-            similarity = np.dot(text_embeddings, image_embeddings.T)
-            
-            similarity = (similarity + 1) / 2
-            
-            logger.info(f"Computed similarity matrix of shape {similarity.shape}")
-            return similarity
-        except Exception as e:
-            logger.error(f"Similarity computation error: {str(e)}")
-            raise SophiaNetException(f"Similarity computation error: {str(e)}", sys)
-    
-    def find_best_match(self, query: str, image_inputs: List[Union[bytes, Image.Image]]) -> int:
-        try:
-            text_embedding = self.encode_text(query)
-            image_embeddings = self.encode_image(image_inputs)
-            
-            similarities = self.compute_similarity(text_embedding, image_embeddings)
-            best_idx = np.argmax(similarities[0])
-            
-            logger.info(f"Best match for query '{query}' is image at index {best_idx} with similarity {similarities[0][best_idx]:.4f}")
-            return int(best_idx)
-        except Exception as e:
-            logger.error(f"Best match search error: {str(e)}")
-            raise SophiaNetException(f"Best match search error: {str(e)}", sys)
+            logger.warning(f"CLIP score computation failed: {str(e)}")
+            return None
+
+
+# Module-level singleton — loaded once at startup
+clip_service = ClipService(
+    model_name=CLIP_MODEL["MODEL_NAME"],
+    processor_name=CLIP_MODEL["PROCESSOR"],
+)

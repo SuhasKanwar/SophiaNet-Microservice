@@ -9,7 +9,9 @@ from PIL import Image
 from utils.logger import logger
 from utils.exception import SophiaNetException
 from utils.s3_syncer import S3Syncer
+from utils.metrics import Timer
 from services.rag import RAGService
+from services.clip import clip_service
 
 from config.prompts import STABLE_DIFFUSION_SYSTEM_PROMPT
 
@@ -90,33 +92,43 @@ class StableDiffusion(S3Syncer, RAGService):
         except Exception as e:
             logger.error(f"Stable Diffusion error: {str(e)}")
             raise SophiaNetException(f"Stable Diffusion error: {str(e)}", sys)
+
+    def _compute_metrics(self, prompt_used: str, image_bytes: bytes, latency_ms: float) -> dict:
+        return {
+            "latency_ms": latency_ms,
+            "clip_score": clip_service.compute_clip_score(prompt_used, image_bytes),
+            "image_size_bytes": len(image_bytes),
+        }
     
-    def generate_response(self, prompt: str, session_history: list, files: list) -> str:
+    def generate_response(self, prompt: str, session_history: list, files: list) -> dict:
         try:
-            self._ingest_files(files)
-            _ = self._retrieve_context(prompt)
-            _ = session_history or []
+            with Timer() as t:
+                self._ingest_files(files)
+                _ = self._retrieve_context(prompt)
+                _ = session_history or []
 
-            sanitized_prompt = self._sanitize_prompt(prompt)
-            sanitized_prompt = self._trim_prompt(sanitized_prompt)
+                sanitized_prompt = self._sanitize_prompt(prompt)
+                sanitized_prompt = self._trim_prompt(sanitized_prompt)
 
-            if not sanitized_prompt:
-                raise Exception("Prompt is empty after sanitization")
+                if not sanitized_prompt:
+                    raise Exception("Prompt is empty after sanitization")
 
-            try:
-                image = self.generate_image(sanitized_prompt)
-            except SophiaNetException as model_error:
-                if "Prompt blocked by model safety filters" not in str(model_error):
-                    raise
-                logger.warning("Stable Diffusion prompt filtered; retrying once with safer fallback prompt")
-                safe_prompt = self._fallback_safe_prompt(sanitized_prompt)
-                image = self.generate_image(safe_prompt)
+                try:
+                    image = self.generate_image(sanitized_prompt)
+                except SophiaNetException as model_error:
+                    if "Prompt blocked by model safety filters" not in str(model_error):
+                        raise
+                    logger.warning("Stable Diffusion prompt filtered; retrying once with safer fallback prompt")
+                    safe_prompt = self._fallback_safe_prompt(sanitized_prompt)
+                    image = self.generate_image(safe_prompt)
 
-            img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format='PNG')
-            img_byte_arr = img_byte_arr.getvalue()
-            s3_url = self.upload_file(img_byte_arr, content_type="image/png")
-            return s3_url
+                img_byte_arr = io.BytesIO()
+                image.save(img_byte_arr, format='PNG')
+                img_bytes = img_byte_arr.getvalue()
+                s3_url = self.upload_file(img_bytes, content_type="image/png")
+
+            metrics = self._compute_metrics(sanitized_prompt, img_bytes, t.elapsed_ms)
+            return {"s3_url": s3_url, "performance_metrics": metrics}
         except Exception as e:
             logger.error(f"Error in generate_response: {str(e)}")
             raise SophiaNetException(f"Error in generate_response: {str(e)}", sys)

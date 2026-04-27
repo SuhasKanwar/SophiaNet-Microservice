@@ -76,10 +76,10 @@ FALLBACK_IMAGE_GENERATOR = IMAGE_GENERATORS[FALLBACK_IMAGE_MODEL]
 FALLBACK_IMAGE_MODEL_NAME = FALLBACK_IMAGE_MODEL.value
 
 
-def _generate_image_with_fallback(prompt: str, session_history: list, files_payload: list) -> tuple[str, str]:
+def _generate_image_with_fallback(prompt: str, session_history: list, files_payload: list) -> tuple[dict, str]:
     try:
-        s3_url = ACTIVE_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
-        return s3_url, ACTIVE_IMAGE_MODEL_NAME
+        result = ACTIVE_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
+        return result, ACTIVE_IMAGE_MODEL_NAME
     except Exception as primary_error:
         if IMAGE_MODEL == FALLBACK_IMAGE_MODEL:
             raise primary_error
@@ -88,8 +88,8 @@ def _generate_image_with_fallback(prompt: str, session_history: list, files_payl
             f"Primary image model '{ACTIVE_IMAGE_MODEL_NAME}' failed; "
             f"falling back to '{FALLBACK_IMAGE_MODEL_NAME}'. Error: {str(primary_error)}"
         )
-        s3_url = FALLBACK_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
-        return s3_url, FALLBACK_IMAGE_MODEL_NAME
+        result = FALLBACK_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
+        return result, FALLBACK_IMAGE_MODEL_NAME
 
 @app.get("/", tags=["Root"])
 def root() -> dict:
@@ -145,19 +145,21 @@ async def generate_response(request: fastapi.Request) -> dict:
         
         classification, image_description = router.route_request(prompt)
         if classification == "text":
-            response = llama.generate_response(prompt, session_history, files_payload)
+            result = llama.generate_response(prompt, session_history, files_payload)
             return {
                 "status": 200,
                 "model": "llama",
-                "response": response
+                "response": result["text"],
+                "performance_metrics": result["performance_metrics"],
             }
         elif classification == "image":
-            s3_url, model_name = _generate_image_with_fallback(prompt, session_history, files_payload)
+            result, model_name = _generate_image_with_fallback(prompt, session_history, files_payload)
             return {
                 "status": 200,
                 "model": model_name,
-                "image_url": s3_url,
-                "response": image_description or ""
+                "image_url": result["s3_url"],
+                "response": image_description or "",
+                "performance_metrics": result["performance_metrics"],
             }
         else:
             return {
@@ -207,12 +209,13 @@ async def generate_chat(request: fastapi.Request) -> dict:
         if not prompt:
             raise SophiaNetException("Prompt is required.")
 
-        response = llama.generate_response(prompt, session_history, files_payload)
+        result = llama.generate_response(prompt, session_history, files_payload)
 
         return {
             "status": 200,
             "model": "llama",
-            "response": response
+            "response": result["text"],
+            "performance_metrics": result["performance_metrics"],
         }
     except Exception as e:
         logger.error(f"Error in /generate-chat: {str(e)}")
@@ -256,12 +259,13 @@ async def generate_image(request: fastapi.Request) -> dict:
         if not prompt:
             raise SophiaNetException("Prompt is required.")
 
-        s3_url, model_name = _generate_image_with_fallback(prompt, session_history, files_payload)
+        result, model_name = _generate_image_with_fallback(prompt, session_history, files_payload)
 
         return {
             "status": 200,
             "model": model_name,
-            "image_url": s3_url
+            "image_url": result["s3_url"],
+            "performance_metrics": result["performance_metrics"],
         }
     except Exception as e:
         logger.error(f"Error in /generate-image: {str(e)}")
@@ -325,13 +329,14 @@ async def crawl_youtube(request: fastapi.Request) -> dict:
             f"Video URL: {youtube_url}\n\n"
             f"Transcript:\n{transcript}"
         )
-        response = llama.generate_response(prompt, session_history=[], files=[])
+        result = llama.generate_response(prompt, session_history=[], files=[])
 
         return {
             "status": 200,
             "message": "YouTube transcript processed successfully.",
             "model": "LLaMA",
-            "response": response
+            "response": result["text"],
+            "performance_metrics": result["performance_metrics"],
         }
     except Exception as e:
         logger.error(f"Error in /crawl-youtube: {str(e)}")
@@ -366,8 +371,8 @@ async def generate_diagram(request: fastapi.Request) -> dict:
             "Always return ONLY the final, complete Mermaid diagram code."
         )
 
-        response = llama.generate_response(full_prompt, session_history=[], files=[])
-        mermaid_code = response.strip()
+        result = llama.generate_response(full_prompt, session_history=[], files=[])
+        mermaid_code = result["text"].strip()
 
         return {
             "status": 200,

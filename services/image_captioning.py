@@ -6,6 +6,7 @@ from transformers import BlipProcessor, BlipForConditionalGeneration
 
 from utils.logger import logger
 from utils.exception import SophiaNetException
+from utils.metrics import Timer, compute_bleu
 
 class ImageCaptioningService:
     def __init__(self, model_name, task, processor_name):
@@ -83,24 +84,36 @@ class ImageCaptioningService:
             logger.error(f"Preprocessing failed: {str(e)}, using original image")
             return image
 
-    def generate_caption(self, image_bytes: bytes, prompt=None) -> str:
+    def _compute_metrics(self, caption: str, prompt: str | None, latency_ms: float) -> dict:
+        """Compute captioning performance metrics internally."""
+        return {
+            "latency_ms": latency_ms,
+            "caption_bleu": compute_bleu(prompt, caption) if prompt else None,
+            "caption_length": len(caption.split()),
+        }
+
+    def generate_caption(self, image_bytes: bytes, prompt=None) -> dict:
+        """Return {"text": str, "performance_metrics": dict}."""
         try:
-            image = Image.open(BytesIO(image_bytes)).convert("RGB")
-            
-            image = self.preprocess_image(image)
-            
-            if prompt:
-                inputs = self.processor(image, prompt, return_tensors="pt")
-            else:
-                inputs = self.processor(image, return_tensors="pt")
-            
-            out = self.model.generate(
-                **inputs,
-                max_new_tokens=50
-            )
-            caption = self.processor.decode(out[0], skip_special_tokens=True)
+            with Timer() as t:
+                image = Image.open(BytesIO(image_bytes)).convert("RGB")
+                
+                image = self.preprocess_image(image)
+                
+                if prompt:
+                    inputs = self.processor(image, prompt, return_tensors="pt")
+                else:
+                    inputs = self.processor(image, return_tensors="pt")
+                
+                out = self.model.generate(
+                    **inputs,
+                    max_new_tokens=50
+                )
+                caption = self.processor.decode(out[0], skip_special_tokens=True)
+
             logger.info(f"Generated caption: {caption}")
-            return caption
+            metrics = self._compute_metrics(caption, prompt, t.elapsed_ms)
+            return {"text": caption, "performance_metrics": metrics}
         except Exception as e:
             logger.error(f"Image Captioning error: {str(e)}")
             raise SophiaNetException(f"Image Captioning error: {str(e)}", sys)

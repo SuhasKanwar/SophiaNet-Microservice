@@ -24,6 +24,8 @@ class RAGService:
         self.vector_store = None
 
     def _ingest_files(self, files: list):
+        # Reset vector store per request to prevent cross-query context leakage
+        self.vector_store = None
         if not files:
             return
         try:
@@ -40,9 +42,10 @@ class RAGService:
         except Exception as e:
             logger.error(f"File ingestion error: {e}")
     
-    def _retrieve_context(self, query: str, k: int = 4) -> str:
+    def _retrieve_context(self, query: str, k: int = 4) -> tuple[str, int]:
+        """Return (context_text, chunks_retrieved)."""
         if not self.vector_store:
-            return "No external context."
+            return "No external context.", 0
         try:
             retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
             docs: list[Document] = retriever.invoke(query)
@@ -50,7 +53,7 @@ class RAGService:
             for d in docs:
                 src = d.metadata.get("source")
                 parts.append(f"[{src}] {d.page_content}")
-            return "\n---\n".join(parts)
+            return "\n---\n".join(parts), len(docs)
         except Exception as e:
             logger.error(f"Retrieval error: {e}")
-            return "Context retrieval failed."
+            return "Context retrieval failed.", 0
