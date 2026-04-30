@@ -85,7 +85,7 @@ nvidia-nvtx==13.0.85
 openai==2.32.0
 orjson==3.11.8
 ormsgpack==1.12.2
-packaging @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_packaging_1776209387/work
+packaging==24.0
 pillow==12.2.0
 primp==1.2.3
 propcache==0.4.1
