@@ -374,6 +374,7 @@ async def generate_diagram(request: fastapi.Request) -> dict:
         result = llama.generate_response(full_prompt, session_history=[], files=[])
         mermaid_code = result["text"].strip()
 
+        logger.info(f"Generated Mermaid code:\n{mermaid_code}")
         return {
             "status": 200,
             "message": "Diagram generated successfully.",
