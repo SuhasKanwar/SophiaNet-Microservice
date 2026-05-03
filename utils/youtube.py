@@ -18,13 +18,14 @@ def _extract_video_id(url_or_id: str) -> str:
 
 def get_youtube_transcript(url_or_id: str, languages=None, as_text=True, separator=" "):
     video_id = _extract_video_id(url_or_id)
+    ytt_api = YouTubeTranscriptApi()
 
     try:
         langs = languages if languages else ['en', 'en-US', 'en-GB', 'en-IN']
         try:
-            transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=langs)
+            transcript = ytt_api.fetch(video_id, languages=langs)
         except NoTranscriptFound:
-            transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            transcript = ytt_api.fetch(video_id)
 
         if not transcript:
             raise NoTranscriptFound("Transcript list empty.")
@@ -39,7 +40,19 @@ def get_youtube_transcript(url_or_id: str, languages=None, as_text=True, separat
         raise RuntimeError(f"Failed to fetch transcript: {e}")
 
     if as_text:
-        texts = [seg.get("text", "").strip() for seg in transcript if seg.get("text")]
+        if hasattr(transcript, "to_raw_data"):
+            transcript = transcript.to_raw_data()
+
+        texts = []
+        for segment in transcript:
+            if isinstance(segment, dict):
+                text = (segment.get("text") or "").strip()
+            else:
+                text = (getattr(segment, "text", "") or "").strip()
+
+            if text:
+                texts.append(text)
+
         return re.sub(r"\s+", " ", separator.join(texts)).strip()
 
     return transcript
