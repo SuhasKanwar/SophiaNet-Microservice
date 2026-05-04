@@ -77,19 +77,28 @@ FALLBACK_IMAGE_MODEL_NAME = FALLBACK_IMAGE_MODEL.value
 
 
 def _generate_image_with_fallback(prompt: str, session_history: list, files_payload: list) -> tuple[dict, str]:
-    try:
-        result = ACTIVE_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
-        return result, ACTIVE_IMAGE_MODEL_NAME
-    except Exception as primary_error:
-        if IMAGE_MODEL == FALLBACK_IMAGE_MODEL:
-            raise primary_error
+    image_attempts = [(ACTIVE_IMAGE_MODEL_NAME, ACTIVE_IMAGE_GENERATOR)]
+    if IMAGE_MODEL != FALLBACK_IMAGE_MODEL:
+        image_attempts.append((FALLBACK_IMAGE_MODEL_NAME, FALLBACK_IMAGE_GENERATOR))
 
-        logger.warning(
-            f"Primary image model '{ACTIVE_IMAGE_MODEL_NAME}' failed; "
-            f"falling back to '{FALLBACK_IMAGE_MODEL_NAME}'. Error: {str(primary_error)}"
-        )
-        result = FALLBACK_IMAGE_GENERATOR.generate_response(prompt, session_history, files_payload)
-        return result, FALLBACK_IMAGE_MODEL_NAME
+    last_error = None
+    for attempt_index, (model_name, generator) in enumerate(image_attempts):
+        try:
+            result = generator.generate_response(prompt, session_history, files_payload)
+            return result, model_name
+        except Exception as error:
+            last_error = error
+            if attempt_index == 0 and len(image_attempts) > 1:
+                logger.warning(
+                    f"Primary image model '{ACTIVE_IMAGE_MODEL_NAME}' failed; "
+                    f"falling back to '{FALLBACK_IMAGE_MODEL_NAME}'. Error: {str(error)}"
+                )
+                continue
+
+            logger.error(
+                f"Image generation failed for model '{model_name}'. Error: {str(error)}"
+            )
+            raise last_error
 
 @app.get("/", tags=["Root"])
 def root() -> dict:
