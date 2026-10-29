@@ -4,9 +4,8 @@ from langchain_classic.agents import create_openai_tools_agent, AgentExecutor
 from langchain_classic import hub
 
 class GenericTools:
-    def __init__(self, langchain_hub_name: str):
+    def __init__(self, langchain_hub_name: str = "hwchase17/openai-functions-agent"):
         self.langchain_hub_name = langchain_hub_name
-        self.prompt = hub.pull(self.langchain_hub_name)
 
     def get_wikipedia_tool(self, top_k: int, doc_content_chars_max: int) -> WikipediaQueryRun:
         wikipedia_api_wrapper = WikipediaAPIWrapper(
@@ -42,7 +41,7 @@ class GenericTools:
     # Not using the agent executor for now, using direct tool binding and chain invocation
     def get_agent_executor(self, llm) -> AgentExecutor:
         tools = self.get_generic_tools()
-        agent = create_openai_tools_agent(llm, tools, self.prompt)
+        agent = create_openai_tools_agent(llm, tools, hub.pull(self.langchain_hub_name))
         agent_executor = AgentExecutor(
             agent=agent,
             tools=tools,

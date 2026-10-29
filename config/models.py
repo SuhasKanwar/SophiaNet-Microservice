@@ -1,4 +1,11 @@
+import os
+
+from dotenv import load_dotenv
+
 from enum import Enum
+
+load_dotenv()
+
 
 class IMAGE_MODELS(str, Enum):
     STABLE_DIFFUSION = "stable_diffusion"
@@ -34,7 +41,7 @@ HUGGINGFACE_EMBEDDINGS_MODEL = {
     "MODEL_NAME": "sentence-transformers/all-MiniLM-L6-v2"
 }
 
-ROUTER_MODEL = {
+LLAMA_ROUTER_MODEL = {
     "MODEL_NAME": "meta-llama/llama-4-scout-17b-16e-instruct",
     "RESPONSE_FORMAT": {
         "type": "json_schema",
@@ -69,4 +76,22 @@ CLIP_MODEL = {
     "MODEL_NAME": "openai/clip-vit-base-patch32",
     "PROCESSOR": "openai/clip-vit-base-patch32",
     "EMBEDDING_DIM": 512
+}
+
+NVIDIA = {
+    "MODEL_NAME": os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3-nano-30b-a3b"),
+    "BASE_URL": "https://integrate.api.nvidia.com/v1",
+    "TEMPERATURE": 0.6,
+    "TOP_P": 0.95,
+    "MAX_TOKENS": 4096,
+    "TIMEOUT": 90,
+    "MAX_RETRIES": 2,
+    "CHUNK_SIZE": 1000,
+    "CHUNK_OVERLAP": 150,
+    "RECURSION_LIMIT": 16,
+}
+
+ROUTER_MODEL = {
+    "MODEL_NAME": NVIDIA["MODEL_NAME"],
+    "RESPONSE_FORMAT": {"type": "json_object"},
 }
