@@ -11,7 +11,10 @@ from config.models import HUGGINGFACE_EMBEDDINGS_MODEL
 
 @lru_cache(maxsize=1)
 def get_embeddings():
-    return HuggingFaceEmbeddings(model_name=HUGGINGFACE_EMBEDDINGS_MODEL["MODEL_NAME"])
+    return HuggingFaceEmbeddings(
+        model_name=HUGGINGFACE_EMBEDDINGS_MODEL["MODEL_NAME"],
+        model_kwargs={"token": False, "device": "cpu"},
+    )
 
 
 class RAGService:

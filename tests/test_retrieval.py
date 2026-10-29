@@ -6,7 +6,7 @@ from langchain_core.embeddings import DeterministicFakeEmbedding
 from langchain_core.messages import AIMessage
 
 from services.assistant import AssistantService
-from services.rag import RAGService
+from services.rag import RAGService, get_embeddings
 
 
 class ContextModel:
@@ -30,6 +30,14 @@ class RetrievalTests(unittest.TestCase):
         self.assertNotIn("Alice private", results[1]["text"])
         self.assertEqual(results[0]["performance_metrics"]["chunks_retrieved"], 1)
         self.assertNotIn("Alice private", assistant.generate_response("Hello", [], [])["text"])
+
+    def test_public_embeddings_use_cpu_without_implicit_credentials(self):
+        get_embeddings.cache_clear()
+        self.addCleanup(get_embeddings.cache_clear)
+        with patch("services.rag.HuggingFaceEmbeddings") as factory:
+            self.assertIs(get_embeddings(), get_embeddings())
+        factory.assert_called_once()
+        self.assertEqual(factory.call_args.kwargs["model_kwargs"], {"token": False, "device": "cpu"})
 
     def test_retrieval_errors_are_not_silently_ignored(self):
         rag = RAGService()

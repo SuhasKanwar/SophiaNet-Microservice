@@ -10,6 +10,7 @@ from models.nvidia import create_nvidia_model
 from services.images import generate_image_with_fallback
 from services.router import ModelRouter
 from tools.custom_tools import scrape_website, validate_public_url
+from tools.generic_tools import GenericTools
 
 
 class ProviderTests(unittest.TestCase):
@@ -24,6 +25,12 @@ class ProviderTests(unittest.TestCase):
         with patch.dict(os.environ, {"NVIDIA_API_KEY": ""}):
             with self.assertRaisesRegex(RuntimeError, "NVIDIA_API_KEY"):
                 create_nvidia_model()
+
+    def test_wikipedia_uses_https_and_identifies_application(self):
+        tool = GenericTools().get_wikipedia_tool(1, 500)
+        client = tool.api_wrapper.wiki_client.wikipedia
+        self.assertTrue(client.API_URL.startswith("https://"))
+        self.assertIn("SophiaNet", client.USER_AGENT)
 
     def test_router_validates_provider_json(self):
         model = Mock()

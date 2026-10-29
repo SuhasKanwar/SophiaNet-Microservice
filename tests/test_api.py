@@ -46,6 +46,10 @@ class APITests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.assistant.generate_response.call_args.args[2][0]["content"], b"hello")
 
+        response = self.client.post("/generate-chat", json={"prompt": "read", "files": [{"filename": "notes.txt", "content": "hello world!"}]})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.assistant.generate_response.call_args.args[2][0]["content"], b"hello world!")
+
     def test_invalid_inputs_fail_before_provider_calls(self):
         cases = [
             {}, {"prompt": " "}, {"prompt": 123}, {"prompt": "a", "session_history": {}},
