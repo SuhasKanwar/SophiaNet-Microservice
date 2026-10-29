@@ -6,7 +6,7 @@ SophiaNet currently has functional integration evidence and diagnostic metrics. 
 
 ## Evidence available before this documentation task
 
-The preceding implementation session and [microservice README](../microservice/README.md) record the following at microservice snapshot `eb4caa3`:
+The preceding implementation session and [microservice README](../microservice/README.md) record the following results:
 
 | Evidence | Earlier recorded result | Scope |
 | --- | --- | --- |
@@ -25,7 +25,7 @@ The preceding implementation session and [microservice README](../microservice/R
 
 These are **earlier-session receipts**. The documentation task did not rerun the suite or live providers, and it did not verify current service health. Recorded successes do not establish production reliability, performance under load or general answer quality.
 
-Live image generation/S3 upload, OCR execution, the full authenticated browser workflow, a web build/typecheck and Docker builds were not qualified in that earlier work. Image fallback and OCR endpoint wiring were checked using fakes. The application source remains in two independent repositories; a root docs commit is not a new application release.
+Live image generation/S3 upload, OCR execution, the full authenticated browser workflow, a web build/typecheck and Docker builds were not qualified in that earlier work. Image fallback and OCR endpoint wiring were checked using fakes.
 
 ## Documentation validation on 2026-10-30
 
@@ -96,7 +96,7 @@ Generated images default to public-read S3 ACLs. Image captioning logs generated
 
 Worker-thread dispatch avoids blocking the async event loop but does not implement a durable queue, per-user quota, rate limit, cancellation budget or global concurrency control. A graph recursion cap does not bound the duration of every external request. Ten allowed 10 MiB uploads, large histories, local model caches and concurrent inference can still consume substantial resources.
 
-Compose references published images rather than building the local commits, has no database service or readiness checks and exposes the Python port. The Dockerfile lacks the OCR engine binary. Next.js deliberately ignores TypeScript and ESLint errors during builds. The current documentation therefore makes no reproducible-container or production-readiness claim.
+Compose references published images rather than building the local source, has no database service or readiness checks and exposes the Python port. The Dockerfile lacks the OCR engine binary. Next.js deliberately ignores TypeScript and ESLint errors during builds. The current documentation therefore makes no reproducible-container or production-readiness claim.
 
 ### Incomplete product scope
 

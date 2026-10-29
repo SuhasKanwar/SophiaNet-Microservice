@@ -1,6 +1,6 @@
 # SophiaNet documentation
 
-This documentation describes the source available on **2026-10-30**: microservice commit `eb4caa3` and web commit `fc14f53`. It explains the implemented system and its research foundations without treating planned features or earlier test receipts as current production qualification.
+This documentation describes the source available on **2026-10-30**. It explains the implemented system and its research foundations without treating planned features or earlier test receipts as current production qualification.
 
 ## Reading guide
 
@@ -31,8 +31,8 @@ This documentation describes the source available on **2026-10-30**: microservic
 - **Partial** means a capability has a limited path, such as OCR without a summarization stage or heuristics without a quality evaluation.
 - **Proposed** means the feature is a design direction rather than delivered functionality.
 
-Examples and diagrams show the current source design. Provider availability, credentials, quotas and model behavior can change independently of a source commit. The research papers explain related methods; their benchmark results do not transfer automatically to SophiaNet.
+Examples and diagrams show the current source design. Provider availability, credentials, quotas and model behavior can change independently of the application source. The research papers explain related methods; their benchmark results do not transfer automatically to SophiaNet.
 
 ## Scope of this documentation change
 
-The root repository holds documentation and the Compose description. `microservice/` and `web/` remain independent Git repositories. Documentation preparation does not change application code, migrate data, build containers or push to GitHub.
+The documentation covers the web application, Python microservice, deployment description and research foundations.

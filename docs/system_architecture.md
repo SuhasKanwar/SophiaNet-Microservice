@@ -2,7 +2,7 @@
 
 [Documentation index](README.md) · [AI infrastructure](models_and_ai_infrastructure.md) · [Operations](setup_and_operations.md)
 
-These Mermaid diagrams describe the source design at `microservice: eb4caa3` and `web: fc14f53`. They distinguish the authenticated web application from the Python API, which currently does not enforce an application authentication scheme.
+These Mermaid diagrams describe the application design. They distinguish the authenticated web application from the Python API, which currently does not enforce an application authentication scheme.
 
 ## System context and trust boundaries
 

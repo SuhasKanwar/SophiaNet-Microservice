@@ -2,7 +2,7 @@
 
 [Documentation index](README.md) · [Architecture](system_architecture.md) · [Research](research/README.md)
 
-Configuration is grounded in [models.py](../microservice/config/models.py), [prompts.py](../microservice/config/prompts.py) and the corresponding model/service implementations at microservice commit `eb4caa3`.
+Configuration is grounded in [models.py](../microservice/config/models.py), [prompts.py](../microservice/config/prompts.py) and the corresponding model/service implementations.
 
 ## Model inventory
 

@@ -32,7 +32,7 @@ The [microservice example environment](../microservice/.env.example) defines:
 
 The AWS SDK may also use its normal profile/role credential chain; source code does not require embedded static keys. Bedrock runtime/model settings and S3 bucket/prefix live in [configuration files](../microservice/config/). The S3 helper creates its own boto3 client and uses that client's resolved region for the public URL; the `AWS_S3_REGION` dictionary entry is not explicitly passed into that helper's client construction.
 
-For a new setup, copy the example to `.env` only if that file does not already exist, then fill in credentials privately. Do not commit real environment files. Model output limits, sampling, chunk sizes, timeout and retry settings are Python configuration, rather than separate environment variables for every knob.
+For a new setup, copy the example to `.env` only if that file does not already exist, then fill in credentials privately. Keep real environment files private. Model output limits, sampling, chunk sizes, timeout and retry settings are Python configuration, rather than separate environment variables for every knob.
 
 ```bash
 conda activate sophianet-venv
@@ -69,7 +69,7 @@ npx prisma migrate deploy
 npm run dev
 ```
 
-`npm ci` runs the package's `postinstall` script, which already generates the Prisma client; the explicit generate command is useful when the schema changes or generation needs repeating. `prisma migrate deploy` applies the committed migration history to the configured database; review the target and migration changes first. No database is provisioned by the workspace Compose file.
+`npm ci` runs the package's `postinstall` script, which already generates the Prisma client; the explicit generate command is useful when the schema changes or generation needs repeating. `prisma migrate deploy` applies the included migration history to the configured database; review the target and migration changes first. No database is provisioned by the workspace Compose file.
 
 The standard scripts are `dev`, `build`, `start`, `lint` and `postinstall`. A production web build/start can be performed with `npm run build` and `npm run start`; those commands were not run here. Because [next.config.ts](../web/next.config.ts) ignores ESLint and TypeScript errors during builds, a successful build would not substitute for separate lint and type checks.
 
@@ -119,7 +119,7 @@ npm run lint
 npx tsc --noEmit
 ```
 
-These are recommended commands, not newly obtained passing results. The Python suite uses fake models/embeddings and mocked services. External-provider qualification should be recorded separately with commit, environment, endpoint, date, result and relevant output. Do not store credentials or private uploaded content in receipts.
+These are recommended commands, not newly obtained passing results. The Python suite uses fake models/embeddings and mocked services. External-provider qualification should be recorded separately with the application version, environment, endpoint, date, result and relevant output. Do not store credentials or private uploaded content in receipts.
 
 ## Storage and lifecycle
 
@@ -132,9 +132,9 @@ These are recommended commands, not newly obtained passing results. The Python s
 
 ## Deployment description and readiness
 
-The root [Compose file](../docker-compose.yml) runs published `sophianet-web:4` and `sophianet-microservice:2` image references on a shared bridge network, exposing ports 3000 and 8000. It loads `web/.env` and `microservice/.env`, sets restart policies and defines a startup dependency. It does not verify service readiness or ensure those images contain the current local commits.
+The root [Compose file](../docker-compose.yml) runs published `sophianet-web:4` and `sophianet-microservice:2` image references on a shared bridge network, exposing ports 3000 and 8000. It loads `web/.env` and `microservice/.env`, sets restart policies and defines a startup dependency. It does not verify service readiness or ensure those images contain the current local source.
 
-The Python Dockerfile installs build tools and curl, but does not install Tesseract. It also has no explicit model-cache provisioning or readiness check. These are operational gaps to resolve before claiming containerized OCR or a reproducible production deployment. No Docker build or image push is part of this documentation change.
+The Python Dockerfile installs build tools and curl, but does not install Tesseract. It also has no explicit model-cache provisioning or readiness check. These are operational gaps to resolve before claiming containerized OCR or a reproducible production deployment. Containerized behavior has not been verified for this documentation.
 
 ## Failure interpretation
 

@@ -53,11 +53,9 @@ Project_014_SophiaNet/
 ├── README.md
 ├── docs/                 # Product, architecture, operations and research
 ├── docker-compose.yml    # Existing published image deployment description
-├── microservice/         # Independent Python/FastAPI Git repository
-└── web/                  # Independent Next.js/React/Prisma Git repository
+├── microservice/         # Python/FastAPI microservice
+└── web/                  # Next.js/React/Prisma web application
 ```
-
-The root Git repository tracks workspace documentation and the existing Compose description. The two application directories keep independent histories and are ignored by the root repository; they are not Git submodules. Use `git -C microservice status` and `git -C web status` when reviewing source changes. A root documentation commit does not capture application changes.
 
 ## Start locally
 
@@ -67,6 +65,6 @@ The active default text model is `nvidia/nemotron-3.5-lightning-30b-a3b`; exact 
 
 ## Evidence and scope
 
-Documentation was grounded in source on **2026-10-30**, with application snapshots `microservice: eb4caa3` and `web: fc14f53`. The preceding implementation session recorded 22 passing Python tests and live NVIDIA chat, routing, tool-loop, diagram, YouTube and TXT-retrieval checks. These are earlier integration receipts, not a fresh deployment verdict or research benchmark. See the [evidence boundaries](docs/evaluation_and_limitations.md).
+Documentation was grounded in source on **2026-10-30**. The preceding implementation session recorded 22 passing Python tests and live NVIDIA chat, routing, tool-loop, diagram, YouTube and TXT-retrieval checks. These are earlier integration receipts, not a fresh deployment verdict or research benchmark. See the [evidence boundaries](docs/evaluation_and_limitations.md).
 
-The image-filter page is a placeholder, and there is no `/image-filter` microservice route. Text-to-video generation, slide/document export, semantic image retrieval, learner modeling and persistent document indexing are not implemented. No GitHub push or Docker build was performed while preparing this documentation.
+The image-filter page is a placeholder, and there is no `/image-filter` microservice route. Text-to-video generation, slide/document export, semantic image retrieval, learner modeling and persistent document indexing are not implemented.
