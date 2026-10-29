@@ -1,7 +1,5 @@
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchResults
 from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper
-from langchain_classic.agents import create_openai_tools_agent, AgentExecutor
-from langchain_classic import hub
 
 class GenericTools:
     def __init__(self, langchain_hub_name: str = "hwchase17/openai-functions-agent"):
@@ -39,7 +37,10 @@ class GenericTools:
         return tools
     
     # Not using the agent executor for now, using direct tool binding and chain invocation
-    def get_agent_executor(self, llm) -> AgentExecutor:
+    def get_agent_executor(self, llm):
+        from langchain_classic.agents import create_openai_tools_agent, AgentExecutor
+        from langchain_classic import hub
+
         tools = self.get_generic_tools()
         agent = create_openai_tools_agent(llm, tools, hub.pull(self.langchain_hub_name))
         agent_executor = AgentExecutor(

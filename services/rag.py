@@ -1,26 +1,25 @@
-import os
+from functools import lru_cache
 
 from utils.logger import logger
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
-from utils.files import process_files
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from config.models import HUGGINGFACE_EMBEDDINGS_MODEL
 
-from dotenv import load_dotenv
+@lru_cache(maxsize=1)
+def get_embeddings():
+    return HuggingFaceEmbeddings(model_name=HUGGINGFACE_EMBEDDINGS_MODEL["MODEL_NAME"])
 
-load_dotenv()
-os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN")
 
 class RAGService:
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 150):
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.splitter = RecursiveCharacterTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
-        self.embeddings = HuggingFaceEmbeddings(model_name=HUGGINGFACE_EMBEDDINGS_MODEL["MODEL_NAME"])
+        self.embeddings = None
         self.vector_store = None
 
     def _ingest_files(self, files: list):
@@ -29,19 +28,21 @@ class RAGService:
         if not files:
             return
         try:
+            from utils.files import process_files
+
             raw_docs = process_files(files)
             if not raw_docs:
                 return
             split_docs = self.splitter.split_documents(raw_docs)
             if not split_docs:
                 return
-            if self.vector_store is None:
-                self.vector_store = FAISS.from_documents(split_docs, self.embeddings)
-            else:
-                self.vector_store.add_documents(split_docs)
+            if self.embeddings is None:
+                self.embeddings = get_embeddings()
+            self.vector_store = FAISS.from_documents(split_docs, self.embeddings)
         except Exception as e:
             logger.error(f"File ingestion error: {e}")
-    
+            raise
+
     def _retrieve_context(self, query: str, k: int = 4) -> tuple[str, int]:
         """Return (context_text, chunks_retrieved)."""
         if not self.vector_store:
@@ -56,4 +57,4 @@ class RAGService:
             return "\n---\n".join(parts), len(docs)
         except Exception as e:
             logger.error(f"Retrieval error: {e}")
-            return "Context retrieval failed.", 0
+            raise

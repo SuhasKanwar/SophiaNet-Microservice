@@ -1,36 +1,59 @@
-import sys
-import os
+import ipaddress
+import socket
+from urllib.parse import urljoin, urlsplit
 
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain.tools.retriever import create_retriever_tool
-from dotenv import load_dotenv
+import requests
+from bs4 import BeautifulSoup
+from langchain_core.tools import tool
 
 from config.custom_tools import SCRAPE_WEBSITE_TOOL
-from utils.logger import logger
-from utils.exception import SophiaNetException
+from utils.youtube import get_youtube_transcript
 
-load_dotenv()
-os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN")
 
-class CustomTools():
-    def get_scrape_website_tool(self, url: str) -> str:
-        try:
-            loader = WebBaseLoader(url)
-            documents = loader.load()
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            chunks = text_splitter.split_documents(documents)
-            embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-            vectorstore = FAISS.from_documents(chunks, embeddings)
-            retriever = vectorstore.as_retriever()
-            tool = create_retriever_tool(
-                retriever,
-                SCRAPE_WEBSITE_TOOL["name"],
-                SCRAPE_WEBSITE_TOOL["description"]
-            )
-            return tool
-        except Exception as e:
-            logger.error(f"{SCRAPE_WEBSITE_TOOL['name']} tool error: {str(e)}")
-            raise SophiaNetException(f"{SCRAPE_WEBSITE_TOOL['name']} tool error: {str(e)}", sys)
+def validate_public_url(url: str) -> str:
+    parsed = urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password:
+        raise ValueError("A public HTTP(S) URL without credentials is required.")
+    addresses = socket.getaddrinfo(parsed.hostname, parsed.port or (443 if parsed.scheme == "https" else 80))
+    if not addresses or any(not ipaddress.ip_address(address[4][0]).is_global for address in addresses):
+        raise ValueError("Private and local network addresses are not allowed.")
+    return url
+
+
+@tool(SCRAPE_WEBSITE_TOOL["name"], description=SCRAPE_WEBSITE_TOOL["description"])
+def scrape_website(url: str) -> str:
+    # shortcut: DNS validation cannot prevent rebinding, enforce outbound network policy before public deployment.
+    for _ in range(6):
+        validate_public_url(url)
+        with requests.get(url, timeout=15, stream=True, allow_redirects=False) as response:
+            if response.is_redirect:
+                url = urljoin(url, response.headers["Location"])
+                continue
+            response.raise_for_status()
+            content_type = response.headers.get("Content-Type", "").lower()
+            if not any(kind in content_type for kind in ("text/html", "text/plain", "application/xhtml+xml")):
+                raise ValueError("Only HTML and plain-text pages are supported.")
+            content = bytearray()
+            for chunk in response.iter_content(8192):
+                content.extend(chunk)
+                if len(content) > 1_000_000:
+                    raise ValueError("Website exceeds the 1 MB download limit.")
+            soup = BeautifulSoup(bytes(content), "html.parser")
+            for element in soup(["script", "style", "nav", "footer"]):
+                element.decompose()
+            return f"Source: {url}\n{soup.get_text(' ', strip=True)[:12000]}"
+    raise ValueError("Too many redirects.")
+
+
+@tool
+def youtube_transcript(url: str) -> str:
+    """Retrieve an English YouTube transcript from a video URL or video ID."""
+    transcript = get_youtube_transcript(url)
+    if len(transcript) > 60000:
+        return f"Source: {url}\n{transcript[:60000]}\n[Transcript truncated]"
+    return f"Source: {url}\n{transcript}"
+
+
+class CustomTools:
+    def get_custom_tools(self) -> list:
+        return [scrape_website, youtube_transcript]

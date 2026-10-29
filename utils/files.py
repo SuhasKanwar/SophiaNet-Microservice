@@ -7,13 +7,19 @@ from langchain_core.documents import Document
 from config.files import ALLOWED_FILE_TYPES
 from config.models import IMAGE_CAPTIONING_MODEL
 
-from services.image_captioning import ImageCaptioningService
+from functools import lru_cache
 
-image_captioning = ImageCaptioningService(
-    model_name=IMAGE_CAPTIONING_MODEL["MODEL_NAME"],
-    task=IMAGE_CAPTIONING_MODEL["TASK"],
-    processor_name=IMAGE_CAPTIONING_MODEL["PROCESSOR"]
-)
+
+@lru_cache(maxsize=1)
+def get_image_captioning():
+    from services.image_captioning import ImageCaptioningService
+
+    return ImageCaptioningService(
+        model_name=IMAGE_CAPTIONING_MODEL["MODEL_NAME"],
+        task=IMAGE_CAPTIONING_MODEL["TASK"],
+        processor_name=IMAGE_CAPTIONING_MODEL["PROCESSOR"],
+    )
+
 
 def _normalize_file_input(file_obj):
     """
@@ -52,7 +58,7 @@ def process_md(filename: str, data: bytes) -> str:
 
 def process_image(filename: str, data: bytes) -> str:
     try:
-        caption = image_captioning.generate_caption(data)
+        caption = get_image_captioning().generate_caption(data)["text"]
         return f"Based on the given data generate a description of the image, it should be descriptive, the given data is just for reference: Name of the file: {filename}\nImage Caption: {caption}"
     except Exception:
         return ""

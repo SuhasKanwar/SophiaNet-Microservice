@@ -79,7 +79,7 @@ CLIP_MODEL = {
 }
 
 NVIDIA = {
-    "MODEL_NAME": os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3-nano-30b-a3b"),
+    "MODEL_NAME": os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
     "BASE_URL": "https://integrate.api.nvidia.com/v1",
     "TEMPERATURE": 0.6,
     "TOP_P": 0.95,

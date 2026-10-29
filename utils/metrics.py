@@ -6,12 +6,6 @@ from rouge_score import rouge_scorer
 
 from utils.logger import logger
 
-try:
-    nltk.data.find("tokenizers/punkt_tab")
-except LookupError:
-    nltk.download("punkt_tab", quiet=True)
-
-
 class Timer:
     def __init__(self):
         self.elapsed_ms: float = 0.0
@@ -26,8 +20,8 @@ class Timer:
 
 def compute_bleu(reference: str, hypothesis: str) -> float | None:
     try:
-        ref_tokens = nltk.word_tokenize(reference.lower())
-        hyp_tokens = nltk.word_tokenize(hypothesis.lower())
+        ref_tokens = nltk.word_tokenize(reference.lower(), preserve_line=True)
+        hyp_tokens = nltk.word_tokenize(hypothesis.lower(), preserve_line=True)
         if not ref_tokens or not hyp_tokens:
             return None
         smoothie = SmoothingFunction().method1
