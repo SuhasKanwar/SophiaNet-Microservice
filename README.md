@@ -7,7 +7,7 @@ remain in the repository for reference and are never imported by the running app
 
 ## Project structure
 
-The parent workspace contains two independent Git repositories and a Compose file:
+The parent workspace contains the web application, microservice and a Compose file:
 
 ```text
 Project_014_SophiaNet/
@@ -209,8 +209,8 @@ web build or Docker build was run.
 ## Boundaries
 
 The image-filter web page is an existing placeholder and `/image-filter` remains
-unimplemented. This refactor does not add that separate feature. No web migrations,
-message rewrites, GitHub pushes or Docker builds are required by the change.
+unimplemented. This refactor does not add that separate feature. No web migrations or
+message rewrites are required by the change.
 
 External search, Wikipedia, arXiv, YouTube and model services can fail independently.
 There is no new retry policy for the existing third-party tools. The website tool's
