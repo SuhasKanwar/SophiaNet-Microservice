@@ -31,7 +31,7 @@
 
 ## Python API
 
-Routes live in [generation.py](../microservice/api/routes/generation.py), [tools.py](../microservice/api/routes/tools.py) and [health.py](../microservice/api/routes/health.py).
+Routes live in [generation.py](../api/routes/generation.py), [tools.py](../api/routes/tools.py) and [health.py](../api/routes/health.py).
 
 | Method | Path | Input | Successful response |
 | --- | --- | --- | --- |
@@ -48,7 +48,7 @@ The response uses `status`, `model`, `response`, `image_url` where relevant, and
 
 ## Input rules
 
-The shared [request parser](../microservice/api/requests.py) accepts JSON and multipart form data. Multipart uses `prompt`, JSON text in `session_history`, repeated `files` parts and optional `code`. JSON file objects use `filename` and base64 `content`; TXT/MD strings that are not valid base64 are treated as UTF-8 text.
+The shared [request parser](../api/requests.py) accepts JSON and multipart form data. Multipart uses `prompt`, JSON text in `session_history`, repeated `files` parts and optional `code`. JSON file objects use `filename` and base64 `content`; TXT/MD strings that are not valid base64 are treated as UTF-8 text.
 
 | Constraint | Python service |
 | --- | --- |
@@ -78,11 +78,11 @@ Application limits do not replace gateway body-size, concurrency, authentication
 
 The main chat API stores `performanceMetrics` when returned. The current tool-chat API stores response text and model but does not persist returned performance metrics. Files are forwarded to the microservice, not stored as document records. Main chat saves the user message before provider generation; a failed provider request can therefore leave a user message without a bot reply.
 
-The [dedicated diagram component](../web/src/components/tool/DiagramsTool.tsx) calls the Python service directly. Its current diagram/code remains in React component state. This path must be considered separately from the authenticated, persisted web API flow.
+The [dedicated diagram component](../../web/src/components/tool/DiagramsTool.tsx) calls the Python service directly. Its current diagram/code remains in React component state. This path must be considered separately from the authenticated, persisted web API flow.
 
 ## Source navigation
 
-- [Chat UI](../web/src/components/chat/ChatbotClient.tsx) and [message rendering](../web/src/components/chat/ChatMessages.tsx)
-- [Notes utility](../web/src/components/tool/NotesTool.tsx), [YouTube utility](../web/src/components/tool/YoutubeVideoTool.tsx) and [diagram utility](../web/src/components/tool/DiagramsTool.tsx)
-- [Speech recognition](../web/src/hooks/useSpeechRecognition.ts) and [speech synthesis](../web/src/hooks/useTextToSpeech.ts)
-- [Database schema](../web/prisma/schema.prisma) and [web validation](../web/src/lib/schema.ts)
+- [Chat UI](../../web/src/components/chat/ChatbotClient.tsx) and [message rendering](../../web/src/components/chat/ChatMessages.tsx)
+- [Notes utility](../../web/src/components/tool/NotesTool.tsx), [YouTube utility](../../web/src/components/tool/YoutubeVideoTool.tsx) and [diagram utility](../../web/src/components/tool/DiagramsTool.tsx)
+- [Speech recognition](../../web/src/hooks/useSpeechRecognition.ts) and [speech synthesis](../../web/src/hooks/useTextToSpeech.ts)
+- [Database schema](../../web/prisma/schema.prisma) and [web validation](../../web/src/lib/schema.ts)

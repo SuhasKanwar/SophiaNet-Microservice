@@ -18,7 +18,7 @@ The existing `requirements.txt` includes substantial PyTorch/CUDA packages. Text
 
 ## Python configuration
 
-The [microservice example environment](../microservice/.env.example) defines:
+The [microservice example environment](../.env.example) defines:
 
 | Variable | Use |
 | --- | --- |
@@ -30,7 +30,7 @@ The [microservice example environment](../microservice/.env.example) defines:
 | `AWS_DEFAULT_REGION` | AWS SDK default region; example uses `us-west-2` |
 | `GROQ_API_KEY` | Retained for inactive Llama code; unnecessary for active text paths |
 
-The AWS SDK may also use its normal profile/role credential chain; source code does not require embedded static keys. Bedrock runtime/model settings and S3 bucket/prefix live in [configuration files](../microservice/config/). The S3 helper creates its own boto3 client and uses that client's resolved region for the public URL; the `AWS_S3_REGION` dictionary entry is not explicitly passed into that helper's client construction.
+The AWS SDK may also use its normal profile/role credential chain; source code does not require embedded static keys. Bedrock runtime/model settings and S3 bucket/prefix live in [configuration files](../config). The S3 helper creates its own boto3 client and uses that client's resolved region for the public URL; the `AWS_S3_REGION` dictionary entry is not explicitly passed into that helper's client construction.
 
 For a new setup, copy the example to `.env` only if that file does not already exist, then fill in credentials privately. Keep real environment files private. Model output limits, sampling, chunk sizes, timeout and retry settings are Python configuration, rather than separate environment variables for every knob.
 
@@ -47,7 +47,7 @@ MiniLM public embeddings download anonymously and run on CPU. They do not need `
 
 ## Web configuration and startup
 
-The [web example environment](../web/.env.example) contains these names:
+The [web example environment](../../web/.env.example) contains these names:
 
 | Variable | Use |
 | --- | --- |
@@ -71,11 +71,11 @@ npm run dev
 
 `npm ci` runs the package's `postinstall` script, which already generates the Prisma client; the explicit generate command is useful when the schema changes or generation needs repeating. `prisma migrate deploy` applies the included migration history to the configured database; review the target and migration changes first. No database is provisioned by the workspace Compose file.
 
-The standard scripts are `dev`, `build`, `start`, `lint` and `postinstall`. A production web build/start can be performed with `npm run build` and `npm run start`; those commands were not run here. Because [next.config.ts](../web/next.config.ts) ignores ESLint and TypeScript errors during builds, a successful build would not substitute for separate lint and type checks.
+The standard scripts are `dev`, `build`, `start`, `lint` and `postinstall`. A production web build/start can be performed with `npm run build` and `npm run start`; those commands were not run here. Because [next.config.ts](../../web/next.config.ts) ignores ESLint and TypeScript errors during builds, a successful build would not substitute for separate lint and type checks.
 
 ### Browser-to-service URL caveat
 
-[lib/config.ts](../web/src/lib/config.ts) uses a server-style `MICROSERVICE_BASE_URL` variable with a localhost fallback. The dedicated diagram component imports that constant in client code. Next.js does not generally expose unprefixed server variables to browser bundles, so a remote browser may use `http://localhost:8000` unless that path is changed or configured appropriately. This is a source-derived deployment concern; a remote-browser deployment was not tested.
+[lib/config.ts](../../web/src/lib/config.ts) uses a server-style `MICROSERVICE_BASE_URL` variable with a localhost fallback. The dedicated diagram component imports that constant in client code. Next.js does not generally expose unprefixed server variables to browser bundles, so a remote browser may use `http://localhost:8000` unless that path is changed or configured appropriately. This is a source-derived deployment concern; a remote-browser deployment was not tested.
 
 The configured Next.js `/microservice/:path*` rewrite offers a same-origin forwarding route, but the current diagram component does not use that prefix. Avoid assuming the server-to-server URL and browser-reachable URL are interchangeable.
 
@@ -132,7 +132,7 @@ These are recommended commands, not newly obtained passing results. The Python s
 
 ## Deployment description and readiness
 
-The root [Compose file](../docker-compose.yml) runs published `sophianet-web:4` and `sophianet-microservice:2` image references on a shared bridge network, exposing ports 3000 and 8000. It loads `web/.env` and `microservice/.env`, sets restart policies and defines a startup dependency. It does not verify service readiness or ensure those images contain the current local source.
+The root [Compose file](../../docker-compose.yml) runs published `sophianet-web:4` and `sophianet-microservice:2` image references on a shared bridge network, exposing ports 3000 and 8000. It loads `web/.env` and `microservice/.env`, sets restart policies and defines a startup dependency. It does not verify service readiness or ensure those images contain the current local source.
 
 The Python Dockerfile installs build tools and curl, but does not install Tesseract. It also has no explicit model-cache provisioning or readiness check. These are operational gaps to resolve before claiming containerized OCR or a reproducible production deployment. Containerized behavior has not been verified for this documentation.
 

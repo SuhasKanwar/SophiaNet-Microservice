@@ -19,15 +19,15 @@ Llama source, prompts and configuration are retained for reference. No active la
 
 | Document | Contents |
 | --- | --- |
-| [Documentation index](docs/README.md) | Reading guide and scope |
-| [Project objectives](docs/project_objectives.md) | Problem, users, goals, workflows and contribution boundaries |
-| [Features](docs/features.md) | Feature matrix, API paths and implementation status |
-| [Models and AI infrastructure](docs/models_and_ai_infrastructure.md) | Every configured model, provider, tool, prompt and processing pipeline |
-| [System architecture](docs/system_architecture.md) | Mermaid context, components, sequences, graphs, deployment and data model |
-| [Setup and operations](docs/setup_and_operations.md) | Conda/web setup, configuration, storage and operational boundaries |
-| [Evaluation and limitations](docs/evaluation_and_limitations.md) | Existing diagnostics, earlier evidence and remaining qualification gaps |
-| [Literature review](docs/literature_review.md) | Ten papers, findings, gaps and SophiaNet's relationship to prior work |
-| [Research collection](docs/research/README.md) | Paper PDFs, bibliographic details and provenance |
+| [Documentation index](README.md) | Reading guide and scope |
+| [Project objectives](project_objectives.md) | Problem, users, goals, workflows and contribution boundaries |
+| [Features](features.md) | Feature matrix, API paths and implementation status |
+| [Models and AI infrastructure](models_and_ai_infrastructure.md) | Every configured model, provider, tool, prompt and processing pipeline |
+| [System architecture](system_architecture.md) | Mermaid context, components, sequences, graphs, deployment and data model |
+| [Setup and operations](setup_and_operations.md) | Conda/web setup, configuration, storage and operational boundaries |
+| [Evaluation and limitations](evaluation_and_limitations.md) | Existing diagnostics, earlier evidence and remaining qualification gaps |
+| [Literature review](literature_review.md) | Ten papers, findings, gaps and SophiaNet's relationship to prior work |
+| [Research collection](research/README.md) | Paper PDFs, bibliographic details and provenance |
 
 ## System at a glance
 
@@ -50,21 +50,23 @@ flowchart LR
 
 ```text
 Project_014_SophiaNet/
-├── README.md
-├── docs/                 # Product, architecture, operations and research
 ├── docker-compose.yml    # Existing published image deployment description
 ├── microservice/         # Python/FastAPI microservice
+│   ├── README.md
+│   └── docs/             # Project guides, architecture and research
 └── web/                  # Next.js/React/Prisma web application
+    ├── README.md
+    └── docs/             # Project guides, architecture and research
 ```
 
 ## Start locally
 
-Follow [setup and operations](docs/setup_and_operations.md) for prerequisites and configuration. In separate terminals, start the Python service from `microservice/` using `sophianet-venv`, and run `npm run dev` from `web/`. Configure NVIDIA, Google OAuth and PostgreSQL before exercising the authenticated application. Image generation additionally needs its own provider and S3 credentials.
+Follow [setup and operations](setup_and_operations.md) for prerequisites and configuration. In separate terminals, start the Python service from `microservice/` using `sophianet-venv`, and run `npm run dev` from `web/`. Configure NVIDIA, Google OAuth and PostgreSQL before exercising the authenticated application. Image generation additionally needs its own provider and S3 credentials.
 
-The active default text model is `nvidia/nemotron-3.5-lightning-30b-a3b`; exact settings live in [model configuration](microservice/config/models.py). This is cloud inference through NVIDIA's API, even though the integration uses the OpenAI-compatible client library.
+The active default text model is `nvidia/nemotron-3.5-lightning-30b-a3b`; exact settings live in [model configuration](../config/models.py). This is cloud inference through NVIDIA's API, even though the integration uses the OpenAI-compatible client library.
 
 ## Evidence and scope
 
-Documentation was grounded in source on **2026-10-30**. The preceding implementation session recorded 22 passing Python tests and live NVIDIA chat, routing, tool-loop, diagram, YouTube and TXT-retrieval checks. These are earlier integration receipts, not a fresh deployment verdict or research benchmark. See the [evidence boundaries](docs/evaluation_and_limitations.md).
+Documentation was grounded in source on **2026-10-30**. The preceding implementation session recorded 22 passing Python tests and live NVIDIA chat, routing, tool-loop, diagram, YouTube and TXT-retrieval checks. These are earlier integration receipts, not a fresh deployment verdict or research benchmark. See the [evidence boundaries](evaluation_and_limitations.md).
 
 The image-filter page is a placeholder, and there is no `/image-filter` microservice route. Text-to-video generation, slide/document export, semantic image retrieval, learner modeling and persistent document indexing are not implemented.

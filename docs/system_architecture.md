@@ -234,7 +234,7 @@ erDiagram
     }
 ```
 
-The [Prisma schema](../web/prisma/schema.prisma) defines chat/image types and conversation variants for general chat, notes, YouTube, diagrams and the image-filter placeholder. Foreign keys cascade on user/conversation deletion. There are no separate attachment, document-chunk, vector, tool-trace or learner-profile tables. S3 image objects are not shown as relational entities and are not automatically deleted by a Prisma cascade.
+The [Prisma schema](../../web/prisma/schema.prisma) defines chat/image types and conversation variants for general chat, notes, YouTube, diagrams and the image-filter placeholder. Foreign keys cascade on user/conversation deletion. There are no separate attachment, document-chunk, vector, tool-trace or learner-profile tables. S3 image objects are not shown as relational entities and are not automatically deleted by a Prisma cascade.
 
 ## Existing Compose deployment description
 
@@ -250,4 +250,4 @@ flowchart LR
     API --> S3[(S3)]
 ```
 
-The [Compose file](../docker-compose.yml) references published image tags and injects separate `.env` files. It does not build the local source, define a PostgreSQL service, mount a durable model cache, configure healthchecks, add a job queue or provision provider resources. Consequently, starting those image tags does not establish that the local refactor is running. The Python Dockerfile also does not currently install Tesseract's system executable. No container was built or deployment verified for this documentation task.
+The [Compose file](../../docker-compose.yml) references published image tags and injects separate `.env` files. It does not build the local source, define a PostgreSQL service, mount a durable model cache, configure healthchecks, add a job queue or provision provider resources. Consequently, starting those image tags does not establish that the local refactor is running. The Python Dockerfile also does not currently install Tesseract's system executable. No container was built or deployment verified for this documentation task.

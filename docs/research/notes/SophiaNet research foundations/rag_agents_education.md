@@ -17,7 +17,7 @@ Combining learned retrieval and generation improves knowledge-intensive benchmar
 
 ### Inferences
 
-- SophiaNet's request-local FAISS attachments, frozen MiniLM and hosted Nemotron do not reproduce this training method. [Implementation](../../../../microservice/services/rag.py)
+- SophiaNet's request-local FAISS attachments, frozen MiniLM and hosted Nemotron do not reproduce this training method. [Implementation](../../../../services/rag.py)
 
 ### Gaps
 
@@ -38,7 +38,7 @@ Interleaving model decisions with external actions supports evidence gathering a
 
 ### Inferences
 
-- SophiaNet uses a related tool-feedback loop, not the paper's exposed reasoning trajectories or benchmarks. [Implementation](../../../../microservice/agents/graph.py)
+- SophiaNet uses a related tool-feedback loop, not the paper's exposed reasoning trajectories or benchmarks. [Implementation](../../../../agents/graph.py)
 
 ### Gaps
 
@@ -59,7 +59,7 @@ Independent sentence embeddings permit efficient semantic comparison instead of 
 
 ### Inferences
 
-- SophiaNet applies the sentence-transformer ecosystem through MiniLM; this paper is not the exact MiniLM checkpoint's training report. [Configuration](../../../../microservice/config/models.py)
+- SophiaNet applies the sentence-transformer ecosystem through MiniLM; this paper is not the exact MiniLM checkpoint's training report. [Configuration](../../../../config/models.py)
 
 ### Gaps
 
@@ -80,7 +80,7 @@ Retrieval decisions and evidence/answer critiques can be learned rather than app
 
 ### Inferences
 
-- SophiaNet has neither learned reflection tokens nor an explicit evidence-grading stage. [Implementation](../../../../microservice/services/assistant.py)
+- SophiaNet has neither learned reflection tokens nor an explicit evidence-grading stage. [Implementation](../../../../services/assistant.py)
 
 ### Gaps
 
@@ -102,7 +102,7 @@ An evaluated human-tutor assistant provides a stronger educational evidence mode
 
 ### Inferences
 
-- SophiaNet's learner-facing multimodal workflows differ from tutor decision support, without demonstrated superiority. [Implemented agents](../../../../microservice/services/assistant.py)
+- SophiaNet's learner-facing multimodal workflows differ from tutor decision support, without demonstrated superiority. [Implemented agents](../../../../services/assistant.py)
 
 ### Gaps
 

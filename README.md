@@ -1,5 +1,9 @@
 # SophiaNet AI Microservice
 
+Project documentation: [overview](docs/project_overview.md) · [documentation index](docs/README.md) · [literature review](docs/literature_review.md).
+
+Use these guides for implemented features, model details, architecture and current limitations.
+
 SophiaNet is an educational assistant for chat, document retrieval, image generation,
 OCR, YouTube lecture summaries and Mermaid diagrams. NVIDIA's hosted Nemotron model
 handles every active language-model task. The Llama implementation and its settings

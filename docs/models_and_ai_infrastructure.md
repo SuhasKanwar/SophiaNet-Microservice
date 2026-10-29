@@ -2,7 +2,7 @@
 
 [Documentation index](README.md) · [Architecture](system_architecture.md) · [Research](research/README.md)
 
-Configuration is grounded in [models.py](../microservice/config/models.py), [prompts.py](../microservice/config/prompts.py) and the corresponding model/service implementations.
+Configuration is grounded in [models.py](../config/models.py), [prompts.py](../config/prompts.py) and the corresponding model/service implementations.
 
 ## Model inventory
 
@@ -25,7 +25,7 @@ Research papers are foundations rather than exact reports for every deployed mod
 
 ## NVIDIA cloud inference
 
-[models/nvidia.py](../microservice/models/nvidia.py) creates a `ChatOpenAI` client with NVIDIA credentials and NVIDIA's base URL. The client library's name does not make NVIDIA requests OpenAI-hosted. All active language requests go to `https://integrate.api.nvidia.com/v1` through Chat Completions, with `use_responses_api=False` and thinking disabled through `chat_template_kwargs`.
+[models/nvidia.py](../models/nvidia.py) creates a `ChatOpenAI` client with NVIDIA credentials and NVIDIA's base URL. The client library's name does not make NVIDIA requests OpenAI-hosted. All active language requests go to `https://integrate.api.nvidia.com/v1` through Chat Completions, with `use_responses_api=False` and thinking disabled through `chat_template_kwargs`.
 
 | Setting | Default |
 | --- | --- |
@@ -44,7 +44,7 @@ The earlier implementation session observed HTTP 410 for `nvidia/nemotron-3-nano
 
 ## Agent and prompt responsibilities
 
-[AssistantService](../microservice/services/assistant.py) constructs three compiled graphs from one [graph builder](../microservice/agents/graph.py):
+[AssistantService](../services/assistant.py) constructs three compiled graphs from one [graph builder](../agents/graph.py):
 
 | Agent | System instructions | Available tools |
 | --- | --- | --- |
@@ -84,7 +84,7 @@ A failed or empty extraction can be skipped by file helpers. There is no durable
 
 ## Image captioning and processing
 
-[ImageCaptioningService](../microservice/services/image_captioning.py) opens images as RGB and applies this sequence before BLIP:
+[ImageCaptioningService](../services/image_captioning.py) opens images as RGB and applies this sequence before BLIP:
 
 1. Gaussian blur, radius 1.
 2. Contrast enhancement by 1.2, brightness by 1.1 and sharpness by 1.3.
@@ -96,11 +96,11 @@ Despite method names and comments, these operations are not learned object detec
 
 ## Image generation and storage
 
-[Image dispatch](../microservice/services/images.py) constructs providers lazily, tries Flux first and uses Stable Diffusion on failure. The models sanitize role prefixes, Markdown fences and repeated whitespace. The `MAX_TOKENS` values of 100 for Flux and 77 for Stable Diffusion currently cap **characters**, because `_trim_prompt` uses Python string length rather than tokenization.
+[Image dispatch](../services/images.py) constructs providers lazily, tries Flux first and uses Stable Diffusion on failure. The models sanitize role prefixes, Markdown fences and repeated whitespace. The `MAX_TOKENS` values of 100 for Flux and 77 for Stable Diffusion currently cap **characters**, because `_trim_prompt` uses Python string length rather than tokenization.
 
 Flux retries a failed generation once with safer prompt wording. Stable Diffusion performs its safer-wording retry for a detected prompt-filter failure. A failed primary provider, including initialization failure, then allows the dispatcher to try the fallback.
 
-Generated images are encoded as PNG and passed to [S3Syncer](../microservice/utils/s3_syncer.py). The configured bucket is `sophianet`, with prefix `generated-images/`. The helper uses UUID object names for prefix-style keys and defaults to a `public-read` ACL. Real operation depends on bucket ownership/ACL/public-access settings and credentials. There is no signed-URL access layer, retention policy or user-specific object ownership record in this implementation.
+Generated images are encoded as PNG and passed to [S3Syncer](../utils/s3_syncer.py). The configured bucket is `sophianet`, with prefix `generated-images/`. The helper uses UUID object names for prefix-style keys and defaults to a `public-read` ACL. Real operation depends on bucket ownership/ACL/public-access settings and credentials. There is no signed-URL access layer, retention policy or user-specific object ownership record in this implementation.
 
 CLIP loads when the image-provider modules are imported. It evaluates `logits_per_image / 100` and clamps the result to `[0,1]`. This is an implementation-specific diagnostic, not a calibrated probability or a direct normalized cosine similarity. The configured 512 embedding dimension is not used to build an image-search index.
 

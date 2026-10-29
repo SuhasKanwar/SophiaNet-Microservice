@@ -2,7 +2,11 @@
 
 This documentation describes the source available on **2026-10-30**. It explains the implemented system and its research foundations without treating planned features or earlier test receipts as current production qualification.
 
+Source links assume `microservice/` and `web/` are sibling directories in the workspace.
+
 ## Reading guide
+
+Start with the [project overview](project_overview.md).
 
 1. Read [project objectives](project_objectives.md) for the problem, intended users, scope and success criteria.
 2. Use [features](features.md) to distinguish implemented behavior from partial and proposed capabilities.
@@ -16,13 +20,13 @@ This documentation describes the source available on **2026-10-30**. It explains
 
 | Area | Primary source of truth |
 | --- | --- |
-| Active text model and sampling | [Python model configuration](../microservice/config/models.py) |
-| Agent prompts | [System prompts](../microservice/config/prompts.py) |
-| Agent execution | [Graph builder](../microservice/agents/graph.py), [assistant service](../microservice/services/assistant.py) |
-| Python endpoints and input limits | [API routes](../microservice/api/routes/), [request schema](../microservice/api/requests.py) |
-| Web authentication and persistence | [NextAuth options](../web/src/app/api/auth/%5B...nextauth%5D/options.ts), [Prisma schema](../web/prisma/schema.prisma) |
-| Web-to-service protocol | [Chat route](../web/src/app/api/chat/route.ts), [tool-chat route](../web/src/app/api/tool-chat/route.ts) |
-| Published-image deployment layout | [Compose file](../docker-compose.yml) |
+| Active text model and sampling | [Python model configuration](../config/models.py) |
+| Agent prompts | [System prompts](../config/prompts.py) |
+| Agent execution | [Graph builder](../agents/graph.py), [assistant service](../services/assistant.py) |
+| Python endpoints and input limits | [API routes](../api/routes), [request schema](../api/requests.py) |
+| Web authentication and persistence | [NextAuth options](../../web/src/app/api/auth/%5B...nextauth%5D/options.ts), [Prisma schema](../../web/prisma/schema.prisma) |
+| Web-to-service protocol | [Chat route](../../web/src/app/api/chat/route.ts), [tool-chat route](../../web/src/app/api/tool-chat/route.ts) |
+| Published-image deployment layout | [Compose file](../../docker-compose.yml) |
 
 ## Status vocabulary
 

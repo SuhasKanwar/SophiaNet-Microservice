@@ -1,0 +1,2 @@
+# Preserve source paper bytes and keep PDF contents out of textual diffs.
+docs/research/*.pdf binary

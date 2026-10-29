@@ -6,7 +6,7 @@ SophiaNet currently has functional integration evidence and diagnostic metrics. 
 
 ## Evidence available before this documentation task
 
-The preceding implementation session and [microservice README](../microservice/README.md) record the following results:
+The preceding implementation session and [microservice README](../README.md) record the following results:
 
 | Evidence | Earlier recorded result | Scope |
 | --- | --- | --- |
@@ -29,11 +29,11 @@ Live image generation/S3 upload, OCR execution, the full authenticated browser w
 
 ## Documentation validation on 2026-10-30
 
-All ten downloaded PDFs passed signature, readable-first-page and page-count checks, and their SHA-256 hashes and page counts matched the research catalogue. All 153 local Markdown link targets resolved. Nine Mermaid diagrams parsed and rendered to SVG using Mermaid 11.12.1 in local Chromium. These checks validate the documentation artifacts; application tests and provider calls were not rerun, and both application source repositories remained unchanged.
+All ten downloaded PDFs passed signature, readable-first-page and page-count checks, and their SHA-256 hashes and page counts matched the research catalogue. All 157 local Markdown link targets resolved. Nine Mermaid diagrams parsed and rendered to SVG using Mermaid 11.12.1 in local Chromium. These checks validate the documentation artifacts; application tests and provider calls were not rerun, and both application source repositories remained unchanged.
 
 ## What the current metrics measure
 
-The [text metrics code](../microservice/services/assistant.py), [metric utilities](../microservice/utils/metrics.py) and image services expose diagnostics:
+The [text metrics code](../services/assistant.py), [metric utilities](../utils/metrics.py) and image services expose diagnostics:
 
 | Metric | Actual implementation | Interpretation limit |
 | --- | --- | --- |
@@ -86,9 +86,9 @@ CLIP scoring is uncalibrated and does not drive image retrieval or generation ac
 
 ### Authentication, network access and privacy
 
-[Next.js chat routes](../web/src/app/api/chat/route.ts) enforce session and conversation ownership, but the Python service has no authentication dependency. The direct browser diagram path and Next.js microservice rewrite do not inherit ownership checks. CORS accepts all origins with credentials enabled. A publicly reachable API can expose model usage and resource consumption without a gateway control.
+[Next.js chat routes](../../web/src/app/api/chat/route.ts) enforce session and conversation ownership, but the Python service has no authentication dependency. The direct browser diagram path and Next.js microservice rewrite do not inherit ownership checks. CORS accepts all origins with credentials enabled. A publicly reachable API can expose model usage and resource consumption without a gateway control.
 
-The website tool validates public addresses and redirects but has a documented DNS-rebinding limit. Separately, [download-image](../web/src/app/api/download-image/route.ts) fetches an arbitrary supplied URL without authentication or a destination allowlist. From code inspection, this is a potential server-side request-forgery and resource-use risk if exposed to untrusted callers; it was not exploited or penetration-tested during documentation work.
+The website tool validates public addresses and redirects but has a documented DNS-rebinding limit. Separately, [download-image](../../web/src/app/api/download-image/route.ts) fetches an arbitrary supplied URL without authentication or a destination allowlist. From code inspection, this is a potential server-side request-forgery and resource-use risk if exposed to untrusted callers; it was not exploited or penetration-tested during documentation work.
 
 Generated images default to public-read S3 ACLs. Image captioning logs generated captions, and error logs may contain provider details. No explicit data-retention, consent, deletion-of-S3-objects or private-document policy is implemented. Browser speech may involve browser/provider behavior beyond the application's own server, so it should not be described as guaranteed offline speech processing.
 

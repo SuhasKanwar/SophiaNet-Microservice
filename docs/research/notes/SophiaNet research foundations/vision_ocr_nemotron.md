@@ -16,10 +16,10 @@ Contrastive image/text pretraining enables zero-shot transfer through natural-la
 - **Additional primary record:** [Source](https://arxiv.org/abs/2103.00020).
 
 ### Inferences
-SophiaNet reuses CLIP for an image/prompt diagnostic, not a newly trained joint retrieval system. [Implementation](../../../../microservice/services/clip.py).
+SophiaNet reuses CLIP for an image/prompt diagnostic, not a newly trained joint retrieval system. [Implementation](../../../../services/clip.py).
 
 ### Gaps
-The code divides a learned-temperature-scaled logit by 100 and clamps it; this does not establish a calibrated probability or verified educational-image quality. [Implementation](../../../../microservice/services/clip.py).
+The code divides a learned-temperature-scaled logit by 100 and clamps it; this does not establish a calibrated probability or verified educational-image quality. [Implementation](../../../../services/clip.py).
 
 ## [07] BLIP: Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation
 
@@ -35,10 +35,10 @@ BLIP combines understanding and generation with caption bootstrapping and filter
 - **Additional primary record:** [Source](https://arxiv.org/abs/2201.12086).
 
 ### Inferences
-SophiaNet uses an existing BLIP caption checkpoint to convert attachments into text for RAG. [Implementation](../../../../microservice/utils/files.py).
+SophiaNet uses an existing BLIP caption checkpoint to convert attachments into text for RAG. [Implementation](../../../../utils/files.py).
 
 ### Gaps
-That application is not BLIP training or full multimodal reasoning. The custom blur/contrast/edge/grayscale preprocessing needs an ablation; no accuracy benefit is established. [Implementation](../../../../microservice/services/image_captioning.py).
+That application is not BLIP training or full multimodal reasoning. The custom blur/contrast/edge/grayscale preprocessing needs an ablation; no accuracy benefit is established. [Implementation](../../../../services/image_captioning.py).
 
 ## [08] High-Resolution Image Synthesis with Latent Diffusion Models
 
@@ -54,10 +54,10 @@ Denoising in an autoencoder latent space reduces computational cost relative to 
 - **Additional primary record:** [Source](https://arxiv.org/abs/2112.10752v2).
 
 ### Inferences
-SophiaNet composes hosted image generation and fallback with learning workflows. [Implementation](../../../../microservice/services/images.py).
+SophiaNet composes hosted image generation and fallback with learning workflows. [Implementation](../../../../services/images.py).
 
 ### Gaps
-This foundational paper is not the exact architecture report for configured Flux.1-dev or Stable Diffusion 3.5 Large. Attractive generated pictures do not establish factual or pedagogical correctness. [Configured models](../../../../microservice/config/models.py).
+This foundational paper is not the exact architecture report for configured Flux.1-dev or Stable Diffusion 3.5 Large. Attractive generated pictures do not establish factual or pedagogical correctness. [Configured models](../../../../config/models.py).
 
 ## [09] An Overview of the Tesseract OCR Engine
 
@@ -72,10 +72,10 @@ The paper describes line and word processing, character recognition and adaptive
 - **Inspected:** Complete five-page paper, particularly §2 architecture, recognition/adaptation, and §8 results.
 
 ### Inferences
-SophiaNet wraps Tesseract through pytesseract to extract uploaded image text. [Implementation](../../../../microservice/utils/ocr.py).
+SophiaNet wraps Tesseract through pytesseract to extract uploaded image text. [Implementation](../../../../utils/ocr.py).
 
 ### Gaps
-A 2007 engine description is not validation of the currently installed OCR binary, arbitrary handwriting, formulas, or multilingual class notes; evaluate contemporary application inputs with CER/WER. [Implementation scope](../../../../microservice/utils/ocr.py).
+A 2007 engine description is not validation of the currently installed OCR binary, arbitrary handwriting, formulas, or multilingual class notes; evaluate contemporary application inputs with CER/WER. [Implementation scope](../../../../utils/ocr.py).
 
 ## [10] Nemotron 3 Nano: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning
 
@@ -91,8 +91,8 @@ The report presents a sparse hybrid Mamba/Transformer model with supervised and 
 - **Additional primary record:** [Source](https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Nano-Technical-Report.pdf).
 
 ### Inferences
-It motivates a tool-capable Nemotron-family backend; SophiaNet contributes application orchestration rather than model training. [Implementation](../../../../microservice/services/assistant.py).
+It motivates a tool-capable Nemotron-family backend; SophiaNet contributes application orchestration rather than model training. [Implementation](../../../../services/assistant.py).
 
 ### Gaps
-The active model is Nemotron 3.5 Lightning, not this Nano checkpoint. Nano benchmark, throughput and context claims cannot be assigned to SophiaNet or its cloud deployment. [Configured backend](../../../../microservice/config/models.py).
+The active model is Nemotron 3.5 Lightning, not this Nano checkpoint. Nano benchmark, throughput and context claims cannot be assigned to SophiaNet or its cloud deployment. [Configured backend](../../../../config/models.py).
 
