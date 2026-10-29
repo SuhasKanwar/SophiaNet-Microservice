@@ -1,0 +1,118 @@
+[
+  {
+    "id": "01",
+    "arxiv_version": "2005.11401v4",
+    "file": "01_rag_knowledge_intensive_nlp.pdf",
+    "pdf_url": "https://arxiv.org/pdf/2005.11401v4",
+    "pages": 19,
+    "sha256": "23e3249e9a1e75418d82efecab0ea8c4d033b89c93742f63208d47ce01f21233",
+    "bytes": 885323,
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "authors": [
+      "Patrick Lewis",
+      "Ethan Perez",
+      "Aleksandra Piktus",
+      "Fabio Petroni",
+      "Vladimir Karpukhin",
+      "Naman Goyal",
+      "Heinrich Küttler",
+      "Mike Lewis",
+      "Wen-tau Yih",
+      "Tim Rocktäschel",
+      "Sebastian Riedel",
+      "Douwe Kiela"
+    ],
+    "first_preprint_year": 2020,
+    "venue": "NeurIPS 2020",
+    "revision_date": "2021-04-12",
+    "landing_url": "https://arxiv.org/abs/2005.11401",
+    "access_date": "2026-10-30"
+  },
+  {
+    "id": "02",
+    "arxiv_version": "2210.03629v3",
+    "file": "02_react_reasoning_and_acting.pdf",
+    "pdf_url": "https://arxiv.org/pdf/2210.03629v3",
+    "pages": 33,
+    "sha256": "f285b0971ae4a790e402fb93966bed3adde2cf0a04977d08b2b40d6ab0cace69",
+    "bytes": 633805,
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "authors": [
+      "Shunyu Yao",
+      "Jeffrey Zhao",
+      "Dian Yu",
+      "Nan Du",
+      "Izhak Shafran",
+      "Karthik Narasimhan",
+      "Yuan Cao"
+    ],
+    "first_preprint_year": 2022,
+    "venue": "ICLR 2023",
+    "revision_date": "2023-03-10",
+    "landing_url": "https://arxiv.org/abs/2210.03629",
+    "access_date": "2026-10-30"
+  },
+  {
+    "id": "03",
+    "arxiv_version": "1908.10084v1",
+    "file": "03_sentence_bert.pdf",
+    "pdf_url": "https://arxiv.org/pdf/1908.10084v1",
+    "pages": 11,
+    "sha256": "92366d22fc0521350d6cbe0ad72bcee754f90e88181d7b4a8e2adb1e7e594fec",
+    "bytes": 548961,
+    "title": "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks",
+    "authors": [
+      "Nils Reimers",
+      "Iryna Gurevych"
+    ],
+    "first_preprint_year": 2019,
+    "venue": "EMNLP-IJCNLP 2019",
+    "revision_date": "2019-08-27",
+    "landing_url": "https://arxiv.org/abs/1908.10084",
+    "access_date": "2026-10-30"
+  },
+  {
+    "id": "04",
+    "arxiv_version": "2310.11511v1",
+    "file": "04_self_rag.pdf",
+    "pdf_url": "https://arxiv.org/pdf/2310.11511v1",
+    "pages": 30,
+    "sha256": "d9eaa1398abac0df67a9d0933a5bf8b6d9d83d2e72da2a486073cd842dd52978",
+    "bytes": 1405127,
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "authors": [
+      "Akari Asai",
+      "Zeqiu Wu",
+      "Yizhong Wang",
+      "Avirup Sil",
+      "Hannaneh Hajishirzi"
+    ],
+    "first_preprint_year": 2023,
+    "venue": "ICLR 2024; local PDF is preprint v1",
+    "revision_date": "2023-10-17",
+    "landing_url": "https://arxiv.org/abs/2310.11511",
+    "access_date": "2026-10-30"
+  },
+  {
+    "id": "05",
+    "arxiv_version": "2410.03017v3",
+    "file": "05_tutor_copilot.pdf",
+    "pdf_url": "https://arxiv.org/pdf/2410.03017v3",
+    "pages": 53,
+    "sha256": "90274f5c23ea01d4c3c4921b4abb6b369665a1d23deabb0dd4fb255cd09bfa7f",
+    "bytes": 1993820,
+    "title": "Tutor CoPilot: A Human-AI Approach for Scaling Real-Time Expertise",
+    "authors": [
+      "Rose E. Wang",
+      "Ana T. Ribeiro",
+      "Carly D. Robinson",
+      "Susanna Loeb",
+      "Dora Demszky"
+    ],
+    "first_preprint_year": 2024,
+    "venue": "arXiv preprint; no venue asserted",
+    "revision_date": "2026-10-10",
+    "landing_url": "https://arxiv.org/abs/2410.03017",
+    "access_date": "2026-10-30"
+  }
+]

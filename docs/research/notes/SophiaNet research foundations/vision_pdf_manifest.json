@@ -1,0 +1,47 @@
+[
+  {
+    "file": "06_clip.pdf",
+    "source_url": "https://arxiv.org/pdf/2103.00020",
+    "resolved_url": "https://arxiv.org/pdf/2103.00020",
+    "sha256": "6478b6e571a7d6fcd846d8ef77bfd60c285f1986abb8f475eedc43de403074f5",
+    "pages": 48,
+    "bytes": 6813639,
+    "pdf_title": "Learning Transferable Visual Models From Natural Language Supervision"
+  },
+  {
+    "file": "07_blip.pdf",
+    "source_url": "https://arxiv.org/pdf/2201.12086",
+    "resolved_url": "https://arxiv.org/pdf/2201.12086",
+    "sha256": "63e0335cdd57c3d92b907b89c93d10befdd29b8aeed108091bbde90c121ed97a",
+    "pages": 12,
+    "bytes": 1303121,
+    "pdf_title": "BLIP: Bootstrapping Language-Image Pre-training for  Unified Vision-Language Understanding and Generation"
+  },
+  {
+    "file": "08_latent_diffusion.pdf",
+    "source_url": "https://arxiv.org/pdf/2112.10752",
+    "resolved_url": "https://arxiv.org/pdf/2112.10752",
+    "sha256": "46ede043a8dc07ca1f0f445620523fe1ad8b2436bd83856a3835612a47e9f79e",
+    "pages": 45,
+    "bytes": 40842586,
+    "pdf_title": ""
+  },
+  {
+    "file": "09_tesseract_ocr.pdf",
+    "source_url": "https://research.google.com/pubs/archive/33418.pdf",
+    "resolved_url": "https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/33418.pdf",
+    "sha256": "a95ae92b905eddf961d0444ef88082b7d4b0597b4a6b4239bf94f8af50a73328",
+    "pages": 5,
+    "bytes": 168158,
+    "pdf_title": ""
+  },
+  {
+    "file": "10_nemotron_3_nano.pdf",
+    "source_url": "https://arxiv.org/pdf/2512.20848",
+    "resolved_url": "https://arxiv.org/pdf/2512.20848",
+    "sha256": "91d0a294db6e42f00e7fcee50df5dcbf19a5264a11443d117a199b1065eb71f4",
+    "pages": 40,
+    "bytes": 1035079,
+    "pdf_title": "Nemotron 3 Nano: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning"
+  }
+]
