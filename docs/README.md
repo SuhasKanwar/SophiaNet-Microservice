@@ -46,3 +46,5 @@ The documentation covers the web application, Python microservice, deployment de
 [Agent battleground, tools, scripts and verification](agent_workflows.md).
 
 [Learning Studio and repeatable system checks](studio_and_system_checks.md).
+
+[Research Paper Studio and retrieval verification](research_paper_studio.md).

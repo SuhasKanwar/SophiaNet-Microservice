@@ -1,6 +1,7 @@
 """Scholarly search with source attribution and reciprocal-rank fusion."""
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
+from html import unescape
 from urllib.parse import quote, urlsplit
 import re
 
@@ -12,7 +13,7 @@ HEADERS = {"User-Agent": "SophiaNet/1.0 (educational paper discovery)"}
 
 
 def plain(value):
-    return BeautifulSoup(value or "", "html.parser").get_text(" ", strip=True)
+    return BeautifulSoup(unescape(value or ""), "html.parser").get_text(" ", strip=True)
 
 
 def safe_url(value):
@@ -30,7 +31,7 @@ def crossref(query, since):
     response.raise_for_status()
     papers = []
     for item in response.json()["message"]["items"]:
-        if item.get("type") not in {"journal-article", "proceedings-article", "posted-content"}:
+        if item.get("type") not in {"journal-article", "proceedings-article"}:
             continue
         title = plain((item.get("title") or [""])[0])
         doi = item.get("DOI", "").strip().lower()

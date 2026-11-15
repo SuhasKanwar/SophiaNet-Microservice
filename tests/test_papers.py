@@ -33,9 +33,11 @@ class PaperTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):search_papers('topic')
 
     def test_crossref_normalization(self):
-        response=Mock();response.json.return_value={'message':{'items':[{'type':'journal-article','title':['<i>Study</i>'],'DOI':'10.1234/ABC','published':{'date-parts':[[2024]]},'abstract':'<p>Evidence</p>'}]}}
+        response=Mock();response.json.return_value={'message':{'items':[{'type':'journal-article','title':['<i>Study</i>'],'DOI':'10.1234/ABC','published':{'date-parts':[[2024]]},'abstract':'&lt;p&gt;Evidence&lt;/p&gt;'}]}}
+        response.json.return_value['message']['items'].append({'type':'book','title':['Book'],'DOI':'10.1/book'})
         with patch('services.papers.requests.get',return_value=response) as get:
             data=crossref('topic',2020)
+        self.assertEqual(len(data),1)
         self.assertEqual(data[0]['title'],'Study'); self.assertEqual(data[0]['abstract'],'Evidence')
         self.assertEqual(data[0]['doi'],'10.1234/abc')
         self.assertIn('from-pub-date',get.call_args.kwargs['params']['filter'])
