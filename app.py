@@ -8,7 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 load_dotenv()
 
-from api.routes import generation, health, tools
+from api.routes import generation, health, tools, debate
 from utils.exception import SophiaNetException
 from utils.logger import logger
 
@@ -21,7 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-for router in (health.router, generation.router, tools.router):
+for router in (health.router, generation.router, tools.router, debate.router):
     app.include_router(router)
 
 

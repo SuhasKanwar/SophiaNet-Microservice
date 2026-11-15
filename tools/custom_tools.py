@@ -56,4 +56,6 @@ def youtube_transcript(url: str) -> str:
 
 class CustomTools:
     def get_custom_tools(self) -> list:
-        return [scrape_website, youtube_transcript]
+        from tools.review_tools import calculate, search_papers
+
+        return [scrape_website, youtube_transcript, calculate, search_papers]
