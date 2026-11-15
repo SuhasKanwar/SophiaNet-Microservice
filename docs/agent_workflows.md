@@ -24,7 +24,9 @@ LangGraph remains the orchestration layer for research and debate. CrewAI is sco
 
 - 31 backend tests pass, including graph order, safe stream errors, arithmetic rejection, script request validation and actual CrewAI execution with a fake model.
 - Live NVIDIA: chat, routing, diagrams, all three debate roles, narration scripts and code scripts returned successful responses.
-- Real OCR extracted a generated image fixture correctly.
+- Real OCR extracted a generated image fixture correctly. Local SD-Turbo image generation also passed after the CrewAI dependency update. The YouTube endpoint returned HTTP 200 with a transcript-quality notice; this does not establish summary quality.
+- Live streamed debate events arrived at approximately 0.00s (start), 1.05s (Advocate), 2.17s (Critic), and 2.68s (Judge/final) for one arithmetic prompt. These timings are an example, not a latency benchmark.
+- Crossref live lookup timed out after its 15-second request limit; successful live Crossref retrieval remains unverified.
 - Browser checks with mocked authentication, upstream responses and persistence verified completed debate cards and final-answer rendering on desktop/mobile. The input overflow found on mobile was corrected.
 - TypeScript and targeted endpoint lint pass. `pip check` passes.
 
