@@ -31,3 +31,9 @@ class StudyTests(unittest.TestCase):
             self.assertEqual(len(client.post('/generate-quiz',json={'topic':'math'}).json()['quiz']['questions']),3)
             for topic in ['', ' ', 'x'*10001]:
                 self.assertEqual(client.post('/generate-quiz',json={'topic':topic}).status_code,422)
+
+    def test_invalid_model_output_gets_one_correction_attempt(self):
+        model = Mock(); model.bind.return_value = model
+        model.invoke.side_effect = [AIMessage(content='{"$defs": {}}'), AIMessage(content=json.dumps(valid_quiz()))]
+        self.assertEqual(len(StudyService(model).generate('topic').questions),3)
+        self.assertEqual(model.invoke.call_count,2)
