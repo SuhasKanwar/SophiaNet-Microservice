@@ -42,3 +42,5 @@ Examples and diagrams show the current source design. Provider availability, cre
 ## Scope of this documentation change
 
 The documentation covers the web application, Python microservice, deployment description and research foundations.
+
+[Agent battleground, tools, scripts and verification](agent_workflows.md).

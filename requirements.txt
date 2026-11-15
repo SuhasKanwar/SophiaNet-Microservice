@@ -10,7 +10,7 @@ attrs==26.1.0
 beautifulsoup4==4.14.3
 boto3==1.42.96
 botocore==1.42.96
-certifi==2026.4.22
+certifi==2026.10.23
 charset-normalizer==3.4.7
 click==8.3.3
 cuda-bindings==13.2.0
@@ -89,9 +89,9 @@ packaging==24.0
 pillow==12.2.0
 primp==1.2.3
 propcache==0.4.1
-pydantic==2.13.3
-pydantic-settings==2.14.0
-pydantic_core==2.46.3
+pydantic==2.12.5
+pydantic-settings==2.16.3
+pydantic_core==2.41.5
 Pygments==2.20.0
 pypdf==6.10.2
 pytesseract==0.3.13
@@ -99,10 +99,10 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 python-multipart==0.0.26
 PyYAML==6.0.3
-regex==2026.4.4
+regex==2026.1.15
 requests==2.33.1
 requests-toolbelt==1.0.0
-rich==15.0.0
+rich==14.3.4
 rouge_score==0.1.2
 s3transfer==0.16.1
 safetensors==0.7.0
@@ -143,3 +143,6 @@ zstandard==0.25.0
 # Local image inference
 diffusers==0.36.0
 accelerate==1.13.0
+
+# Script writing and editing agents
+crewai==1.15.41
