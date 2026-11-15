@@ -8,6 +8,7 @@ load_dotenv()
 
 
 class IMAGE_MODELS(str, Enum):
+    SD_TURBO = "sd_turbo"
     STABLE_DIFFUSION = "stable_diffusion"
     FLUX = "flux"
 
@@ -34,8 +35,14 @@ FLUX = {
     "CHUNK_OVERLAP": 150
 }
 
-IMAGE_MODEL: IMAGE_MODELS = IMAGE_MODELS.FLUX
-FALLBACK_IMAGE_MODEL: IMAGE_MODELS = IMAGE_MODELS.STABLE_DIFFUSION
+SD_TURBO = {
+    "MODEL_ID": "stabilityai/sd-turbo",
+    "REVISION": "b261bac6fd2cf515557d5d0707481eafa0485ec2",
+}
+
+# Never silently fall back to a billable provider.
+IMAGE_MODEL: IMAGE_MODELS = IMAGE_MODELS.SD_TURBO
+FALLBACK_IMAGE_MODEL: IMAGE_MODELS = IMAGE_MODELS.SD_TURBO
 
 HUGGINGFACE_EMBEDDINGS_MODEL = {
     "MODEL_NAME": "sentence-transformers/all-MiniLM-L6-v2"

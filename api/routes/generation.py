@@ -22,7 +22,7 @@ async def image_response(payload: GenerateRequest) -> dict:
     result, model = await run_in_threadpool(
         generate_image_with_fallback, payload.prompt, payload.messages, payload.file_payloads,
     )
-    return {"status": 200, "model": model, "image_url": result["s3_url"], "performance_metrics": result["performance_metrics"]}
+    return {"status": 200, "model": model, "image_url": result.get("image_url") or result["s3_url"], "performance_metrics": result["performance_metrics"]}
 
 
 @router.post("/generate")

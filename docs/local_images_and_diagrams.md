@@ -1,0 +1,11 @@
+# Local image generation and diagram studio
+
+Image generation uses `stabilityai/sd-turbo` through Diffusers on CPU. The original Flux and Bedrock implementations remain available in source but are inactive. Failures never switch to a billable provider. Public weights are pinned to revision `b261bac6fd2cf515557d5d0707481eafa0485ec2` and downloaded without using the configured HF credential.
+
+Install `microservice/requirements.txt` in Conda `sophianet-venv`. The first request downloads several GB into the Hugging Face cache; allow internet access, disk space, and several GB of free RAM. Later requests use cached weights. A 512×512 image uses one inference step and zero guidance, as specified by the [model card](https://huggingface.co/stabilityai/sd-turbo). No hosted inference or S3 credentials are required. Hardware and electricity still have costs; model licensing applies, including commercial-use terms.
+
+The API returns a PNG data URL in `image_url`, retaining the response contract. Saved chats store the data URL; this increases database storage. Image downloads handle inline PNGs directly. Attachments and conversation history do not condition this text-to-image model. Prompts use the model tokenizer rather than character slicing. `clip_score` is null; image generation does not load CLIP. The upstream checkpoint has no bundled safety checker; the conditional rejection check only applies if a checker is supplied. Do not assume these outputs have been moderated.
+
+The diagram studio has an inline description form, editable Mermaid code, explicit preview updates, zoom/pan/Fit controls, responsive panels, and visible loading/error states. Requests use authenticated `/api/diagram`, which validates input and calls the Python service from the web server. Configure `MICROSERVICE_BASE_URL` on that server. The original generic rewrite still exists for other uses.
+
+Verification: 26 offline Python tests pass; a real CPU inference produced a 512×512 sailboat PNG (416,739 bytes) in about 25 seconds including pipeline load. TypeScript and targeted lint checks passed. These are functional checks, not quality or production-load benchmarks. CPU latency and database growth need consideration for multi-user deployments.

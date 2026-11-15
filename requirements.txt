@@ -139,3 +139,7 @@ yarl==1.23.0
 youtube-transcript-api==1.2.4
 yt-dlp==2026.3.17
 zstandard==0.25.0
+
+# Local image inference
+diffusers==0.36.0
+accelerate==1.13.0

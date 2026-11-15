@@ -1,12 +1,16 @@
 from functools import lru_cache
 
 from config.cloud import S3_BUCKET
-from config.models import FALLBACK_IMAGE_MODEL, FLUX, IMAGE_MODEL, IMAGE_MODELS, STABLE_DIFFUSION
+from config.models import FALLBACK_IMAGE_MODEL, FLUX, IMAGE_MODEL, IMAGE_MODELS, SD_TURBO, STABLE_DIFFUSION
 from utils.logger import logger
 
 
 @lru_cache(maxsize=2)
 def get_image_generator(model: IMAGE_MODELS):
+    if model == IMAGE_MODELS.SD_TURBO:
+        from models.sd_turbo import SDTurbo
+
+        return SDTurbo(**{key.lower(): value for key, value in SD_TURBO.items()})
     common = {
         "bucket_name": S3_BUCKET["AWS_S3_BUCKET_NAME"],
         "object_key": S3_BUCKET["AWS_S3_IMAGES_OBJECT_KEY"],
@@ -15,6 +19,8 @@ def get_image_generator(model: IMAGE_MODELS):
         from models.flux import Flux
 
         return Flux(**{key.lower(): value for key, value in FLUX.items()}, **common)
+    if model != IMAGE_MODELS.STABLE_DIFFUSION:
+        raise ValueError(f"Unknown image model: {model}")
     from models.stable_diffusion import StableDiffusion
 
     return StableDiffusion(**{key.lower(): value for key, value in STABLE_DIFFUSION.items()}, **common)

@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from langchain_core.messages import AIMessage
 from pydantic import ValidationError
 
-from config.models import NVIDIA
+from config.models import NVIDIA, IMAGE_MODELS
 from models.nvidia import create_nvidia_model
 from services.images import generate_image_with_fallback
 from services.router import ModelRouter
@@ -47,7 +47,7 @@ class ProviderTests(unittest.TestCase):
     def test_fallback_includes_initialization_failures(self):
         fallback = Mock()
         fallback.generate_response.return_value = {"s3_url": "image"}
-        with patch("services.images.get_image_generator", side_effect=[RuntimeError("primary unavailable"), fallback]) as factory:
+        with patch("services.images.IMAGE_MODEL", IMAGE_MODELS.FLUX), patch("services.images.FALLBACK_IMAGE_MODEL", IMAGE_MODELS.STABLE_DIFFUSION), patch("services.images.get_image_generator", side_effect=[RuntimeError("primary unavailable"), fallback]) as factory:
             result, model = generate_image_with_fallback("draw", [], [])
         self.assertEqual(result, {"s3_url": "image"})
         self.assertEqual(model, "stable_diffusion")

@@ -75,7 +75,7 @@ flowchart TD
     Web[Next.js caller] --> API[FastAPI routers and request validation]
     API --> Classifier[NVIDIA text / image classifier for /generate]
     Classifier -->|text| Research[Research agent]
-    Classifier -->|image| Images[Flux then Stable Diffusion fallback]
+    Classifier -->|image| Images[Local SD-Turbo on CPU]
     API -->|/generate-chat| Research
     Research --> Model[NVIDIA Nemotron]
     Model -->|tool calls| Tools[LangGraph ToolNode]
@@ -222,3 +222,5 @@ DNS check cannot prevent DNS rebinding; enforce outbound network restrictions be
 exposing autonomous browsing to untrusted users. Request size/authentication/rate
 limits should also be enforced by the deployment gateway; liveness does not verify
 provider credentials. Existing CORS and image-generation behavior remain in place.
+
+Current image setup and diagram UI: [Local image generation and diagram studio](docs/local_images_and_diagrams.md). This guide supersedes historical hosted-image verification notes above.

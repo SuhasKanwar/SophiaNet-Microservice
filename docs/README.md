@@ -1,5 +1,7 @@
 # SophiaNet documentation
 
+Current image and diagram behavior: [Local image generation and diagram studio](local_images_and_diagrams.md).
+
 This documentation describes the source available on **2026-10-30**. It explains the implemented system and its research foundations without treating planned features or earlier test receipts as current production qualification.
 
 Source links assume `microservice/` and `web/` are sibling directories in the workspace.
