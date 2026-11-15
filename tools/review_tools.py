@@ -2,7 +2,6 @@
 import ast
 import operator
 
-import requests
 from langchain_core.tools import tool
 
 
@@ -29,9 +28,10 @@ def calculate(expression: str) -> str:
 
 @tool
 def search_papers(query: str) -> str:
-    """Find up to three scholarly papers with DOI and publication metadata via Crossref."""
-    if not query.strip() or len(query) > 500:
-        raise ValueError("Supply a search query of 1–500 characters")
-    response = requests.get("https://api.crossref.org/works", params={"query": query, "rows": 3}, timeout=15, headers={"User-Agent": "SophiaNet/1.0 (research assistant)"})
-    response.raise_for_status()
-    return "\n".join(f"{item.get('title', ['Untitled'])[0]} | {item.get('published', {}).get('date-parts', [])} | https://doi.org/{item['DOI']}" for item in response.json()["message"]["items"]) or "No papers found."
+    """Find relevant scholarly papers from Crossref and arXiv, with source links."""
+    from services.papers import search_papers as search
+    if not 2 <= len(query.strip()) <= 500:
+        raise ValueError("Supply a search query of 2–500 characters")
+    result = search(query.strip(), limit=3)
+    lines = [f"{paper['title']} | {paper['year']} | {paper['url']}" for paper in result['papers']]
+    return "\n".join([*lines, *result['warnings']]) or "No papers found."
