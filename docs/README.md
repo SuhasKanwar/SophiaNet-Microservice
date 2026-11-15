@@ -44,3 +44,5 @@ Examples and diagrams show the current source design. Provider availability, cre
 The documentation covers the web application, Python microservice, deployment description and research foundations.
 
 [Agent battleground, tools, scripts and verification](agent_workflows.md).
+
+[Learning Studio and repeatable system checks](studio_and_system_checks.md).
