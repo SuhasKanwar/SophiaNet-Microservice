@@ -48,3 +48,5 @@ The documentation covers the web application, Python microservice, deployment de
 [Learning Studio and repeatable system checks](studio_and_system_checks.md).
 
 [Research Paper Studio and retrieval verification](research_paper_studio.md).
+
+[AI Learning Studio: formats, personalization and verification](ai_learning_studio.md).
