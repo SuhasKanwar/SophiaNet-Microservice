@@ -33,3 +33,12 @@ class DebateTests(unittest.IsolatedAsyncioTestCase):
         for expression in ['__import__("os")', '2 ** 100000', '1 / 0', '9' * 201]:
             with self.assertRaises((ValueError, ZeroDivisionError)):
                 calculate.invoke({'expression': expression})
+
+    def test_command_contract(self):
+        graph = build_debate(FakeListChatModel(responses=['proposal','critique','final']), [])
+        with patch('api.routes.debate.get_debate',return_value=graph),TestClient(app) as client:
+            result=client.post('/generate-debate',json={'prompt':'question','command':'agent-battleground'})
+            self.assertEqual(json.loads(result.text.splitlines()[-1])['type'],'done')
+            self.assertEqual(client.post('/generate-debate',json={'prompt':'question','command':'unknown'}).status_code,400)
+            self.assertEqual(client.post('/generate-debate',json={'prompt':'','command':'agent-battleground'}).status_code,400)
+            self.assertEqual(client.post('/generate',json={'prompt':'question','command':'agent-battleground'}).status_code,400)

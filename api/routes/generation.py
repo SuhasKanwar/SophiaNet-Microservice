@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from starlette.concurrency import run_in_threadpool
 
 from api.requests import GenerateRequest, parse_request
@@ -27,6 +27,8 @@ async def image_response(payload: GenerateRequest) -> dict:
 
 @router.post("/generate")
 async def generate_response(payload: GenerateRequest = Depends(parse_request)) -> dict:
+    if payload.command:
+        raise HTTPException(400, "Use /generate-debate for agent-battleground commands.")
     payload.require_prompt()
     model_router = await run_in_threadpool(get_model_router)
     classification, description = await run_in_threadpool(model_router.route_request, payload.prompt)
@@ -37,6 +39,8 @@ async def generate_response(payload: GenerateRequest = Depends(parse_request)) -
 
 @router.post("/generate-chat")
 async def generate_chat(payload: GenerateRequest = Depends(parse_request)) -> dict:
+    if payload.command:
+        raise HTTPException(400, "Use /generate-debate for agent-battleground commands.")
     payload.require_prompt()
     assistant = await run_in_threadpool(get_assistant)
     result = await run_in_threadpool(assistant.generate_response, payload.prompt, payload.messages, payload.file_payloads)
@@ -45,5 +49,7 @@ async def generate_chat(payload: GenerateRequest = Depends(parse_request)) -> di
 
 @router.post("/generate-image")
 async def generate_image(payload: GenerateRequest = Depends(parse_request)) -> dict:
+    if payload.command:
+        raise HTTPException(400, "Use /generate-debate for agent-battleground commands.")
     payload.require_prompt()
     return await image_response(payload)

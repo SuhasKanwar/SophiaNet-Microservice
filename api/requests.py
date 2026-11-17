@@ -47,6 +47,7 @@ class FilePayload(BaseModel):
 
 
 class GenerateRequest(BaseModel):
+    command: Literal["agent-battleground"] | None = None
     prompt: str = Field(default="", max_length=100000)
     code: str = Field(default="", max_length=100000)
     session_history: list[HistoryMessage] = Field(default_factory=list, max_length=200)
@@ -78,6 +79,7 @@ async def parse_request(request: Request) -> GenerateRequest:
         if "multipart/form-data" in request.headers.get("content-type", ""):
             async with request.form(max_files=MAX_FILES, max_fields=20) as form:
                 data = {key: form.get(key, "") for key in ("prompt", "code")}
+                data["command"] = form.get("command")
                 data["session_history"] = json.loads(form.get("session_history", "[]"))
                 uploads = form.getlist("files")
                 data["files"] = []
