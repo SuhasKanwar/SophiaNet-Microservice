@@ -2,7 +2,7 @@ from datetime import date
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from starlette.concurrency import run_in_threadpool
-from services.papers import search_papers
+from services.paper_research import research_papers as search_papers
 
 router = APIRouter(tags=["research papers"])
 
@@ -31,6 +31,6 @@ class PaperSearch(BaseModel):
 async def paper_search(payload: PaperSearch):
     try:
         result = await run_in_threadpool(search_papers, payload.query, payload.since, payload.limit)
-    except RuntimeError as error:
+    except (RuntimeError, ValueError) as error:
         raise HTTPException(502, 'Scholarly search is unavailable. Please retry.') from error
     return {"status": 200, **result}
