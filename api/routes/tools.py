@@ -46,5 +46,5 @@ async def generate_diagram(payload: GenerateRequest = Depends(parse_request)) ->
         f"User description:\n{payload.prompt}\n\nCurrent Mermaid code:\n{payload.code or 'None'}\n\n"
         "Modify the current diagram if supplied; otherwise create a new diagram. Return only complete Mermaid code."
     )
-    result = await run_in_threadpool(assistant.generate_response, prompt, payload.messages, [], agent="diagram")
+    result = await run_in_threadpool(assistant.generate_response, prompt, payload.messages, payload.file_payloads, agent="diagram")
     return {**text_response(result), "message": "Diagram generated successfully."}

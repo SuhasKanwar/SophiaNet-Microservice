@@ -101,5 +101,8 @@ class APITests(unittest.TestCase):
         self.assertEqual(self.client.post("/crawl-youtube", json={"prompt": "No URL"}).status_code, 400)
 
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_diagram_receives_uploaded_reference_material(self):
+        response = self.client.post('/generate-diagram',data={'prompt':'Draw the process','code':'flowchart TD'},files={'files':('process.txt',b'Start -> Review -> Finish','text/plain')})
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(self.assistant.generate_response.call_args.args[2],[{'filename':'process.txt','content':b'Start -> Review -> Finish'}])
+        self.assertEqual(self.assistant.generate_response.call_args.kwargs['agent'],'diagram')
