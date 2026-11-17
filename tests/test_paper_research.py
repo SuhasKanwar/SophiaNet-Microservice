@@ -27,10 +27,31 @@ class PaperResearchTests(unittest.TestCase):
     def test_invalid_ids_and_duplicates_are_rejected(self):
         for selections in ([{'candidate_id':99,'relevance':'Fake'}],[{'candidate_id':0,'relevance':'a'},{'candidate_id':0,'relevance':'b'}]):
             with patch('services.paper_research.search_papers',return_value={'papers':[candidate()]}):
-                with self.assertRaises(ValueError):PaperResearch(self.model(selections)).search('question')
+                model = self.model(selections)
+                model.invoke.side_effect = [*model.invoke.side_effect, AIMessage(content=json.dumps({'selections': selections}))]
+                with self.assertRaises(ValueError):PaperResearch(model).search('question')
 
     def test_no_candidates_skips_selection_call(self):
         model=self.model([])
         with patch('services.paper_research.search_papers',return_value={'papers':[],'warnings':[],'sources_searched':['arXiv']}):
             self.assertEqual(PaperResearch(model).search('question')['papers'],[])
         self.assertEqual(model.invoke.call_count,1)
+
+    def test_extra_review_field_is_corrected_once(self):
+        model=self.model([])
+        model.invoke.side_effect=[
+            AIMessage(content=json.dumps({'search_query':'solar','focus':'School energy'})),
+            AIMessage(content=json.dumps({'selections':[], 'review':{'selections':[]}})),
+            AIMessage(content=json.dumps({'selections':[{'candidate_id':0,'relevance':'Matches energy.'}]})),
+        ]
+        with patch('services.paper_research.search_papers',return_value={'papers':[candidate()],'warnings':[],'sources_searched':['Crossref']}):
+            data=PaperResearch(model).search('School energy')
+        self.assertEqual(data['papers'][0]['url'],candidate()['url'])
+        self.assertEqual(model.invoke.call_count,3)
+
+    def test_planner_invalid_json_is_corrected(self):
+        model=self.model([])
+        model.invoke.side_effect=[AIMessage(content='not json'),AIMessage(content=json.dumps({'search_query':'solar','focus':'School energy'}))]
+        with patch('services.paper_research.search_papers',return_value={'papers':[],'warnings':[],'sources_searched':['Crossref']}):
+            self.assertEqual(PaperResearch(model).search('School energy')['papers'],[])
+        self.assertEqual(model.invoke.call_count,2)

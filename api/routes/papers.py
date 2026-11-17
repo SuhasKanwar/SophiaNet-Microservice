@@ -1,4 +1,6 @@
 from datetime import date
+from openai import APIError, RateLimitError
+from utils.logger import logger
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from starlette.concurrency import run_in_threadpool
@@ -31,6 +33,16 @@ class PaperSearch(BaseModel):
 async def paper_search(payload: PaperSearch):
     try:
         result = await run_in_threadpool(search_papers, payload.query, payload.since, payload.limit)
-    except (RuntimeError, ValueError) as error:
-        raise HTTPException(502, 'Scholarly search is unavailable. Please retry.') from error
+    except RateLimitError as error:
+        logger.warning("Paper search model rate limited")
+        raise HTTPException(503, 'The research model is busy. Please try again shortly.') from error
+    except APIError as error:
+        logger.warning("Paper search model failed: %s", type(error).__name__)
+        raise HTTPException(502, 'The research model could not complete the search. Please retry.') from error
+    except ValueError as error:
+        logger.warning("Paper search output rejected: %s", type(error).__name__)
+        raise HTTPException(502, 'The research model returned an invalid selection after correction. Please retry your search.') from error
+    except RuntimeError as error:
+        logger.warning("Paper search unavailable: %s", type(error).__name__)
+        raise HTTPException(502, 'Scholarly sources or the research service are unavailable. Please retry shortly.') from error
     return {"status": 200, **result}
