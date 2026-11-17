@@ -37,3 +37,14 @@ class StudyTests(unittest.TestCase):
         model.invoke.side_effect = [AIMessage(content='{"$defs": {}}'), AIMessage(content=json.dumps(valid_quiz()))]
         self.assertEqual(len(StudyService(model).generate('topic').questions),3)
         self.assertEqual(model.invoke.call_count,2)
+
+    def test_flashcards_validation_and_api(self):
+        deck={'title':'Recall','cards':[{'front':f'Question {i}?','back':f'Answer {i}'} for i in range(5)]}
+        service=self.service(deck)
+        self.assertEqual(len(service.flashcards('topic').cards),5)
+        with patch('api.routes.study.get_study',return_value=service),TestClient(app) as client:
+            response=client.post('/generate-flashcards',json={'topic':'water cycle'})
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(len(response.json()['deck']['cards']),5)
+        for cards in ([],[{'front':'Same','back':'Answer'}]*5,[{'front':' ','back':'Answer'}]*5):
+            with self.assertRaises(ValidationError):self.service({'title':'Recall','cards':cards}).flashcards('topic')

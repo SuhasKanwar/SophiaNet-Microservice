@@ -18,3 +18,11 @@ async def generate_quiz(payload: StudyRequest):
         service = await run_in_threadpool(get_study)
         quiz = await run_in_threadpool(service.generate, payload.topic)
     return {"status": 200, "model": "nvidia", "quiz": quiz.model_dump(), "performance_metrics": {"latency_ms": timer.elapsed_ms}}
+
+
+@router.post("/generate-flashcards")
+async def generate_flashcards(payload: StudyRequest):
+    with Timer() as timer:
+        service = await run_in_threadpool(get_study)
+        deck = await run_in_threadpool(service.flashcards, payload.topic)
+    return {"status": 200, "model": "nvidia", "deck": deck.model_dump(), "performance_metrics": {"latency_ms": timer.elapsed_ms}}
