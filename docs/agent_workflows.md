@@ -4,7 +4,7 @@ The research assistant already includes LangChain tools for Wikipedia, arXiv, we
 
 ## Debate
 
-Enable **Agent battleground** in an existing chat. Text requests go through authenticated `/api/debate`, which checks conversation ownership and loads the last 20 text messages from the database. Attachments remain available in standard chat only.
+In an existing chat, type `/` and select `/agent-battleground`, then enter a question. Enter or Tab selects the command; Escape dismisses the picker. The command applies to that message only; ordinary messages use standard chat. The former header toggle has been removed. Text requests go through authenticated `/api/debate`, which checks conversation ownership and loads the last 20 text messages from the database. Attachments remain available in standard chat only.
 
 Python `/generate-debate` runs a bounded LangGraph: Advocate → Critic → Judge. The first two roles can use the shared research tools; the Judge synthesizes their public contributions. All three use the configured NVIDIA model with different role prompts. They are not independent model families or private reasoning traces. The graph has a five-minute deadline and bounded inner tool loops.
 
@@ -31,3 +31,10 @@ LangGraph remains the orchestration layer for research and debate. CrewAI is sco
 - TypeScript and targeted endpoint lint pass. `pip check` passes.
 
 Real Google OAuth, PostgreSQL persistence and disconnect behavior under production load have not been qualified. The Python API still has the existing unauthenticated boundary; the new web routes enforce session ownership. No Docker image was built and no changes were pushed.
+
+
+## Slash command transport
+
+The composer parses `/agent-battleground <question>` into `command: "agent-battleground"` and the plain question in `content`. Unknown commands, empty questions and attached files are rejected before sending, without clearing the composer. Only this command is offered. The web debate endpoint validates the command and forwards it separately as `command` alongside `prompt`; it never sends the slash prefix to the model. Python validates allowed command values for JSON and multipart requests, and rejects battleground commands sent to ordinary generation endpoints. Older direct debate requests without a command remain supported.
+
+Command UI checks cover picker selection, Escape, malformed commands, mobile layout and all streamed role cards using mocked persistence/upstream. Forty backend tests cover structured-command validation and workflow behavior. TypeScript and targeted new-file lint pass. Intermediate debate cards remain page-local; only the final answer is persisted, as described above.
