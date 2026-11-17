@@ -1,5 +1,8 @@
 # AI Learning Studio
 
+Current retention behavior: [tool session state](tool_session_state.md) supersedes older page-local state notes below.
+
+
 Open **Learning Studio** in the sidebar (`/chatbot/t/studio`). Its layout uses selectable format cards, a session configuration panel and a results workspace. The existing tool-heading position is preserved.
 
 ## AI actions

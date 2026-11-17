@@ -50,3 +50,5 @@ The documentation covers the web application, Python microservice, deployment de
 [Research Paper Studio and retrieval verification](research_paper_studio.md).
 
 [AI Learning Studio: formats, personalization and verification](ai_learning_studio.md).
+
+[Tool session retention, reset and expiry policy](tool_session_state.md).

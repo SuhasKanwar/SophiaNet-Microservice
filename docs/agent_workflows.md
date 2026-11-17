@@ -1,5 +1,8 @@
 # Agent battleground and script generation
 
+Current retention behavior: [tool session state](tool_session_state.md) supersedes older page-local state notes below.
+
+
 The research assistant already includes LangChain tools for Wikipedia, arXiv, web search, website retrieval and YouTube transcripts. Two new tools check bounded arithmetic and search Crossref for publication titles and DOI links. Crossref metadata is not full-text evidence; network failures are returned through the existing tool error path.
 
 ## Debate

@@ -1,5 +1,8 @@
 # Research Paper Studio
 
+Current retention behavior: [tool session state](tool_session_state.md) supersedes older page-local state notes below.
+
+
 Open **Research Papers** in the chatbot sidebar (`/chatbot/t/research-studio`). Enter a research topic, optionally select the earliest publication year, then search. Cards show source-supplied titles, authors (up to 20), year, venue, DOI, abstracts when available, original paper links and arXiv PDF links. Export the reading list as Markdown before leaving the page; search results are not stored in the database.
 
 ## LLM-guided research
