@@ -1,14 +1,15 @@
-"""Local image generation without hosted inference or object-storage charges."""
+"""Local inference with generated PNGs uploaded directly from memory to S3."""
 
-import base64
 from io import BytesIO
 from threading import Lock
 
 from utils.metrics import Timer
+from utils.s3_syncer import S3Syncer
 
 
-class SDTurbo:
-    def __init__(self, model_id: str, revision: str):
+class SDTurbo(S3Syncer):
+    def __init__(self, model_id: str, revision: str, bucket_name: str, object_key: str):
+        super().__init__(bucket_name, object_key)
         self.model_id = model_id
         self.revision = revision
         self._pipeline = None
@@ -47,10 +48,10 @@ class SDTurbo:
             buffer = BytesIO()
             result.images[0].save(buffer, format="PNG")
             image_bytes = buffer.getvalue()
+            s3_url = self.upload_file(image_bytes, content_type="image/png")
 
-        # Inline PNGs remain usable in saved chats without S3 credentials or public files.
         return {
-            "image_url": "data:image/png;base64," + base64.b64encode(image_bytes).decode("ascii"),
+            "s3_url": s3_url,
             "performance_metrics": {
                 "latency_ms": timer.elapsed_ms,
                 "image_size_bytes": len(image_bytes),

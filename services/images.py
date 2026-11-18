@@ -7,14 +7,14 @@ from utils.logger import logger
 
 @lru_cache(maxsize=2)
 def get_image_generator(model: IMAGE_MODELS):
-    if model == IMAGE_MODELS.SD_TURBO:
-        from models.sd_turbo import SDTurbo
-
-        return SDTurbo(**{key.lower(): value for key, value in SD_TURBO.items()})
     common = {
         "bucket_name": S3_BUCKET["AWS_S3_BUCKET_NAME"],
         "object_key": S3_BUCKET["AWS_S3_IMAGES_OBJECT_KEY"],
     }
+    if model == IMAGE_MODELS.SD_TURBO:
+        from models.sd_turbo import SDTurbo
+
+        return SDTurbo(**{key.lower(): value for key, value in SD_TURBO.items()}, **common)
     if model == IMAGE_MODELS.FLUX:
         from models.flux import Flux
 

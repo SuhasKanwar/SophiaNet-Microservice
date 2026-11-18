@@ -28,7 +28,10 @@ if __name__ == '__main__':
     answer = check('/generate-chat', {'prompt': 'What is the project codename in the attached note?', 'files': [{'filename': 'fixture.txt', 'content': 'The project codename is ORCHID-742.'}]})
     assert 'ORCHID-742' in answer['response']
     image = check('/generate-image', {'prompt': 'A watercolor sunflower in a blue vase'})
-    png = base64.b64decode(image['image_url'].split(',', 1)[1])
+    assert image['image_url'].startswith('https://') and '.s3.' in image['image_url']
+    stored = requests.get(image['image_url'], timeout=30)
+    stored.raise_for_status()
+    png = stored.content
     assert Image.open(io.BytesIO(png)).size == (512, 512)
     fixture = Image.new('RGB', (900, 160), 'white')
     ImageDraw.Draw(fixture).text((20, 30), 'SOPHIANET OCR TEST', fill='black', font=ImageFont.load_default(size=42))
