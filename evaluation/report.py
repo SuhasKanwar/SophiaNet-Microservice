@@ -39,7 +39,8 @@ def percentile(values, fraction):
 
 def generate(directory):
     metadata=json.loads((directory/'metadata.json').read_text())
-    records=[json.loads(line) for line in (directory/'attempts.jsonl').read_text().splitlines()]
+    result_file=directory/('rescored_attempts.jsonl' if (directory/'rescored_attempts.jsonl').exists() else 'attempts.jsonl')
+    records=[json.loads(line) for line in result_file.read_text().splitlines()]
     groups=defaultdict(list)
     for record in records: groups[record['group']].append(record)
     summary={'attempts':len(records),'cases':len({r['case_id'] for r in records}),'passed':sum(r['passed'] for r in records),
@@ -92,15 +93,18 @@ def generate(directory):
     failures=['| Case / repeat | HTTP | Failed checks |','| --- | ---: | --- |']
     for record in records:
         if not record['passed']: failures.append(f"| {record['case_id']} / {record['repeat']} | {record['http_status']} | {', '.join(name for name,value in record['checks'].items() if not value)} |")
+    scoring_note='Scoring v1.1 applies the documented Tuesday/Tuesdays reference-alias correction; original attempts/checks are unchanged. See [scoring errata](scoring_errata.json) and [rescored observations](rescored_attempts.jsonl).' if result_file.name.startswith('rescored') else 'Original frozen scoring; no post-run corrections applied.'
     text=f'''# SophiaNet current-system evaluation — {metadata['run_id']}
 
 ## Protocol and provenance
 
-Live HTTP evaluation of {summary['cases']} cases with {metadata['repeats']} repeats: **{len(records)} attempts**. Concurrency: {metadata['workers']}; seeded execution order: {metadata['seed']}. Total wall time: {metadata.get('wall_seconds')} seconds. Environment/model/settings are recorded in [metadata.json](metadata.json); exact input payloads are in [dataset.jsonl](dataset.jsonl). Public cases are the first eight test rows of GSM8K; 32 synthetic cases extend application coverage. See [dataset provenance](../../datasets/manifest.json) and the [GSM8K MIT notice](../../sources/gsm8k-LICENSE.txt).
+Live HTTP evaluation of {summary['cases']} cases with {metadata['repeats']} repeats: **{len(records)} attempts**. Concurrency: {metadata['workers']}; minimum start interval: {metadata.get('minimum_start_interval_seconds',0)} seconds; seeded execution order: {metadata['seed']}. Total wall time: {metadata.get('wall_seconds')} seconds. Environment/model/settings are recorded in [metadata.json](metadata.json); exact input payloads are in [dataset.jsonl](dataset.jsonl). Public cases are the first eight test rows of GSM8K; 32 synthetic cases extend application coverage. See [dataset provenance](../../datasets/manifest.json) and the [GSM8K MIT notice](../../sources/gsm8k-LICENSE.txt).
 
 This evaluates current implemented workflows. It does not compare unimplemented Blackboard/P2P or sequential/parallel/hierarchical variants, certify AWS deployment, or reproduce a full public benchmark. Persona tags and varied prompts are heterogeneous coverage, not a balanced causal persona experiment.
 
 ## Results
+
+{scoring_note}
 
 **{summary['passed']}/{len(records)} attempts passed all case-specific acceptance checks.** This aggregate mixes schema, fact-coverage, exact-answer and expected-rejection checks; it is NOT a system accuracy score. **{summary['availability_failures']} attempts had transport/upstream availability failures.** Expected 400/403 rejections can pass. HTTP 200 streaming errors fail. Provider failures are retained, not silently rerun or removed.
 

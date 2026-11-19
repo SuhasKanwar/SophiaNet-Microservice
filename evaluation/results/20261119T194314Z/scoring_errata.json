@@ -1,0 +1,52 @@
+{
+  "scoring_version": "1.1",
+  "reason": "The frozen summary reference accepted Tuesday but omitted the semantically equivalent recurring-day plural Tuesdays. This caused false negatives in valid summaries. No model requests or original results are replaced.",
+  "corrections": [
+    {
+      "case_id": "13-summary",
+      "fact_index": 2,
+      "add_alias": "Tuesdays"
+    },
+    {
+      "case_id": "14-summary",
+      "fact_index": 2,
+      "add_alias": "Tuesdays"
+    },
+    {
+      "case_id": "15-summary",
+      "fact_index": 2,
+      "add_alias": "Tuesdays"
+    },
+    {
+      "case_id": "16-summary",
+      "fact_index": 2,
+      "add_alias": "Tuesdays"
+    }
+  ],
+  "changed_attempts": [
+    {
+      "case_id": "13-summary",
+      "repeat": 1,
+      "original_passed": false,
+      "corrected_passed": true
+    },
+    {
+      "case_id": "15-summary",
+      "repeat": 2,
+      "original_passed": false,
+      "corrected_passed": true
+    },
+    {
+      "case_id": "14-summary",
+      "repeat": 1,
+      "original_passed": false,
+      "corrected_passed": true
+    },
+    {
+      "case_id": "14-summary",
+      "repeat": 2,
+      "original_passed": false,
+      "corrected_passed": true
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import json
 import os
 import platform
 import random
+import threading
 import subprocess
 import sys
 import time
@@ -84,12 +85,16 @@ def main():
     parser.add_argument('--base-url',default='http://127.0.0.1:8000')
     parser.add_argument('--repeats',type=int,default=2)
     parser.add_argument('--workers',type=int,default=2)
+    parser.add_argument('--interval',type=float,default=0,help='Minimum start interval in seconds; useful for provider quotas')
     parser.add_argument('--timeout',type=int,default=240)
     args=parser.parse_args()
+    if args.interval<0: parser.error('Interval must be nonnegative')
     if args.repeats<1 or not 1<=args.workers<=4: parser.error('Positive repeats and 1–4 workers required')
     data=args.dataset.read_bytes(); cases=[json.loads(line) for line in data.decode().splitlines() if line.strip()]
     if len({case['id'] for case in cases})!=len(cases): raise ValueError('Duplicate case IDs')
     health=requests.get(args.base_url+'/health',timeout=10);health.raise_for_status()
+    revision=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+    dirty=bool(subprocess.check_output(['git','status','--porcelain'],text=True).strip())
     run_id=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     directory=ROOT/'results'/run_id;directory.mkdir(parents=True,exist_ok=False)
     (directory/'dataset.jsonl').write_bytes(data)
@@ -98,10 +103,10 @@ def main():
         try: versions[name]=importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError: versions[name]=None
     metadata={'run_id':run_id,'started_at':datetime.now(timezone.utc).isoformat(),'base_url':args.base_url,
-              'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
-              'dirty_before_run':bool(subprocess.check_output(['git','status','--porcelain'],text=True).strip()),
+              'source_revision':revision,
+              'dirty_before_run':dirty,
               'dataset_sha256':hashlib.sha256(data).hexdigest(),'cases':len(cases),'repeats':args.repeats,
-              'workers':args.workers,'seed':20261120,'request_timeout_seconds':args.timeout,
+              'workers':args.workers,'minimum_start_interval_seconds':args.interval,'seed':20261120,'request_timeout_seconds':args.timeout,
               'python':sys.executable,'platform':platform.platform(),'cpu_count':os.cpu_count(),
               'model':NVIDIA['MODEL_NAME'],'model_settings':NVIDIA,'packages':versions,
               'architecture':'current implemented workflows; no unimplemented pattern comparison',
@@ -111,8 +116,16 @@ def main():
     jobs=[(case,repeat) for repeat in range(1,args.repeats+1) for case in cases]
     random.Random(20261120).shuffle(jobs)
     started=time.perf_counter()
+    schedule_lock=threading.Lock()
+    next_start=[0.0]
+    def paced(case,repeat):
+        with schedule_lock:
+            delay=max(0,next_start[0]-time.perf_counter())
+            if delay: time.sleep(delay)
+            next_start[0]=time.perf_counter()+args.interval
+        return execute(case,repeat,args.base_url,args.timeout)
     with (directory/'attempts.jsonl').open('a') as output, concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures=[pool.submit(execute,case,repeat,args.base_url,args.timeout) for case,repeat in jobs]
+        futures=[pool.submit(paced,case,repeat) for case,repeat in jobs]
         for index,future in enumerate(concurrent.futures.as_completed(futures),1):
             record=future.result()
             output.write(json.dumps(record,ensure_ascii=False)+'\n');output.flush()

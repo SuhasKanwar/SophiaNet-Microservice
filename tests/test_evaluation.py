@@ -48,3 +48,27 @@ class EvaluationTests(unittest.TestCase):
         case=self.case('status');case['expected_status']=403
         self.assertTrue(all(score(case,403,{'message':'Blocked'}).values()))
         self.assertFalse(all(score(case,503,{'message':'Unavailable'}).values()))
+
+    def test_errata_preserve_raw_results_and_frozen_inputs(self):
+        import hashlib
+        import json
+        import tempfile
+        from pathlib import Path
+        from evaluation.rescore import rescore
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary)
+            cases=[]
+            for number in range(13,17):
+                case=self.case('facts',{'facts':[['12'],['Nila'],['Tuesday']]});case['id']=f'{number}-summary';cases.append(case)
+            dataset=''.join(json.dumps(case)+'\n' for case in cases).encode()
+            (directory/'dataset.jsonl').write_bytes(dataset)
+            (directory/'metadata.json').write_text(json.dumps({'dataset_sha256':hashlib.sha256(dataset).hexdigest(),'completed_attempts':1}))
+            body={'response':'12 students, Nila, Tuesdays'}
+            checks=score(cases[0],200,body)
+            raw=json.dumps({'case_id':'13-summary','repeat':1,'http_status':200,'body':body,'checks':checks,'passed':False})+'\n'
+            (directory/'attempts.jsonl').write_text(raw)
+            rescore(directory)
+            corrected=json.loads((directory/'rescored_attempts.jsonl').read_text())
+            self.assertTrue(corrected['passed']);self.assertFalse(corrected['original_passed'])
+            self.assertEqual((directory/'attempts.jsonl').read_text(),raw)
+            self.assertEqual((directory/'dataset.jsonl').read_bytes(),dataset)

@@ -1,0 +1,306 @@
+{
+  "attempts": 80,
+  "cases": 40,
+  "passed": 42,
+  "availability_failures": 35,
+  "http_status_counts": {
+    "200": 37,
+    "403": 3,
+    "400": 5,
+    "502": 6,
+    "503": 29
+  },
+  "wall_seconds": 143.058,
+  "cost_usd": null,
+  "token_usage": null,
+  "groups": {
+    "code": {
+      "attempts": 2,
+      "passed": 0,
+      "availability_failures": 2,
+      "p50_seconds": 1.479,
+      "p95_seconds": 1.526,
+      "checks": {
+        "expected_status": {
+          "evaluated": 2,
+          "passed": 0
+        }
+      },
+      "rubric": "Python AST syntax and named function presence; code never executed, behavior not proven."
+    },
+    "diagram": {
+      "attempts": 6,
+      "passed": 2,
+      "availability_failures": 4,
+      "p50_seconds": 1.459,
+      "p95_seconds": 1.688,
+      "checks": {
+        "expected_status": {
+          "evaluated": 6,
+          "passed": 2
+        },
+        "diagram_declaration": {
+          "evaluated": 2,
+          "passed": 2
+        },
+        "required_labels": {
+          "evaluated": 2,
+          "passed": 2
+        }
+      },
+      "rubric": "Declaration/required labels; see supplementary Mermaid validation when available."
+    },
+    "flashcards": {
+      "attempts": 6,
+      "passed": 3,
+      "availability_failures": 3,
+      "p50_seconds": 2.685,
+      "p95_seconds": 5.772,
+      "checks": {
+        "expected_status": {
+          "evaluated": 6,
+          "passed": 3
+        },
+        "pydantic_schema": {
+          "evaluated": 3,
+          "passed": 3
+        }
+      },
+      "rubric": "Existing Pydantic deck schema; pedagogical/factual quality not independently scored."
+    },
+    "image": {
+      "attempts": 2,
+      "passed": 0,
+      "availability_failures": 2,
+      "p50_seconds": 29.97,
+      "p95_seconds": 40.957,
+      "checks": {
+        "expected_status": {
+          "evaluated": 2,
+          "passed": 0
+        }
+      },
+      "rubric": "S3 URL and readable in-memory 512x512 image; no visual/semantic quality score."
+    },
+    "math": {
+      "attempts": 16,
+      "passed": 7,
+      "availability_failures": 8,
+      "p50_seconds": 1.486,
+      "p95_seconds": 5.635,
+      "checks": {
+        "expected_status": {
+          "evaluated": 16,
+          "passed": 8
+        },
+        "numeric_exact_match": {
+          "evaluated": 8,
+          "passed": 7
+        },
+        "stream_completed": {
+          "evaluated": 1,
+          "passed": 1
+        },
+        "panel_order": {
+          "evaluated": 1,
+          "passed": 1
+        }
+      },
+      "rubric": "Exact numeric answer after the requested FINAL_ANSWER marker; not full GSM8K accuracy."
+    },
+    "narration": {
+      "attempts": 2,
+      "passed": 1,
+      "availability_failures": 1,
+      "p50_seconds": 7.106,
+      "p95_seconds": 12.159,
+      "checks": {
+        "expected_status": {
+          "evaluated": 2,
+          "passed": 1
+        },
+        "reference_fact_1": {
+          "evaluated": 1,
+          "passed": 1
+        },
+        "reference_fact_2": {
+          "evaluated": 1,
+          "passed": 1
+        }
+      },
+      "rubric": "Reference name and quantity coverage; not narration quality."
+    },
+    "ocr": {
+      "attempts": 4,
+      "passed": 4,
+      "availability_failures": 0,
+      "p50_seconds": 0.278,
+      "p95_seconds": 0.515,
+      "checks": {
+        "expected_status": {
+          "evaluated": 4,
+          "passed": 4
+        },
+        "reference_text": {
+          "evaluated": 4,
+          "passed": 4
+        }
+      },
+      "rubric": "Normalized reference-text containment for clean synthetic inputs; not handwriting qualification."
+    },
+    "papers": {
+      "attempts": 6,
+      "passed": 6,
+      "availability_failures": 0,
+      "p50_seconds": 6.234,
+      "p95_seconds": 14.552,
+      "checks": {
+        "expected_status": {
+          "evaluated": 6,
+          "passed": 6
+        },
+        "result_contract": {
+          "evaluated": 6,
+          "passed": 6
+        },
+        "known_title_at_k": {
+          "evaluated": 6,
+          "passed": 6
+        }
+      },
+      "rubric": "HTTP/source contract and known exact title within requested top-k; not general relevance."
+    },
+    "quiz": {
+      "attempts": 6,
+      "passed": 3,
+      "availability_failures": 3,
+      "p50_seconds": 2.143,
+      "p95_seconds": 4.456,
+      "checks": {
+        "expected_status": {
+          "evaluated": 6,
+          "passed": 3
+        },
+        "pydantic_schema": {
+          "evaluated": 3,
+          "passed": 3
+        }
+      },
+      "rubric": "Existing Pydantic quiz schema; pedagogical/factual quality not independently scored."
+    },
+    "retrieval": {
+      "attempts": 8,
+      "passed": 4,
+      "availability_failures": 3,
+      "p50_seconds": 1.39,
+      "p95_seconds": 14.187,
+      "checks": {
+        "expected_status": {
+          "evaluated": 8,
+          "passed": 4
+        },
+        "reference_fact_1": {
+          "evaluated": 4,
+          "passed": 4
+        },
+        "reference_fact_2": {
+          "evaluated": 4,
+          "passed": 4
+        }
+      },
+      "rubric": "Presence of two reference facts from synthetic attached notes; not hallucination precision."
+    },
+    "safety": {
+      "attempts": 6,
+      "passed": 3,
+      "availability_failures": 3,
+      "p50_seconds": 1.424,
+      "p95_seconds": 6.337,
+      "checks": {
+        "expected_status": {
+          "evaluated": 6,
+          "passed": 3
+        },
+        "response_contract": {
+          "evaluated": 6,
+          "passed": 6
+        }
+      },
+      "rubric": "Expected allow/block status and response shape on these fixtures; not a safety benchmark."
+    },
+    "summary": {
+      "attempts": 8,
+      "passed": 4,
+      "availability_failures": 4,
+      "p50_seconds": 1.626,
+      "p95_seconds": 3.711,
+      "checks": {
+        "expected_status": {
+          "evaluated": 8,
+          "passed": 4
+        },
+        "reference_fact_1": {
+          "evaluated": 4,
+          "passed": 4
+        },
+        "reference_fact_2": {
+          "evaluated": 4,
+          "passed": 4
+        },
+        "reference_fact_3": {
+          "evaluated": 4,
+          "passed": 4
+        }
+      },
+      "rubric": "Coverage of three reference facts; unsupported additions are not independently scored."
+    },
+    "validation": {
+      "attempts": 6,
+      "passed": 5,
+      "availability_failures": 1,
+      "p50_seconds": 0.51,
+      "p95_seconds": 1.197,
+      "checks": {
+        "expected_status": {
+          "evaluated": 6,
+          "passed": 5
+        },
+        "response_contract": {
+          "evaluated": 6,
+          "passed": 6
+        }
+      },
+      "rubric": "Expected rejection status and safe response shape."
+    },
+    "video": {
+      "attempts": 2,
+      "passed": 0,
+      "availability_failures": 1,
+      "p50_seconds": 5.078,
+      "p95_seconds": 8.329,
+      "checks": {
+        "expected_status": {
+          "evaluated": 2,
+          "passed": 1
+        },
+        "reference_fact_1": {
+          "evaluated": 1,
+          "passed": 1
+        },
+        "reference_fact_2": {
+          "evaluated": 1,
+          "passed": 0
+        }
+      },
+      "rubric": "Reference elephant/zoo topic coverage, not complete transcript-summary factuality."
+    }
+  },
+  "debate_observed_stage_seconds": [
+    {
+      "attempt": "05-math r1",
+      "advocate": 2.4716000000000005,
+      "critic": 3.2186999999999997,
+      "judge": 4.7208
+    }
+  ]
+}
