@@ -6,10 +6,13 @@ from unittest.mock import Mock, patch
 from fastapi.testclient import TestClient
 
 from app import app
+from services.guardrails import guard_request
 
 
 class APITests(unittest.TestCase):
     def setUp(self):
+        app.dependency_overrides[guard_request] = lambda: None
+        self.addCleanup(app.dependency_overrides.pop, guard_request, None)
         self.client = TestClient(app, raise_server_exceptions=False)
         self.assistant = Mock()
         self.assistant.generate_response.return_value = {"text": "answer", "performance_metrics": {"latency_ms": 1}}

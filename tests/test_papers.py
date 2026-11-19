@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import Mock, patch
 from fastapi.testclient import TestClient
 from app import app
+from services.guardrails import guard_request
 from services.papers import search_papers, crossref, arxiv, safe_url
 
 
@@ -10,6 +11,10 @@ def paper(title='A study',doi='10.1/test',year=2024,abstract=''):
 
 
 class PaperTests(unittest.TestCase):
+
+    def setUp(self):
+        app.dependency_overrides[guard_request] = lambda: None
+        self.addCleanup(app.dependency_overrides.pop, guard_request, None)
     def test_fusion_deduplicates_and_enriches(self):
         first=paper(); second={**paper(abstract='Evidence'),'pdf_url':'https://arxiv.org/pdf/1234'}
         with patch('services.papers.crossref',return_value=[first,first, paper('Other','10.1/other')]),patch('services.papers.arxiv',return_value=[second]):

@@ -3,9 +3,14 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 from langchain_core.language_models.fake_chat_models import FakeListChatModel
 from app import app
+from services.guardrails import guard_request
 
 
 class ScriptTests(unittest.TestCase):
+
+    def setUp(self):
+        app.dependency_overrides[guard_request] = lambda: None
+        self.addCleanup(app.dependency_overrides.pop, guard_request, None)
     def test_transport_and_real_crew(self):
         from services.scripts import generate_script
         model = FakeListChatModel(responses=['Final Answer: Draft script', 'Final Answer: Edited script'])

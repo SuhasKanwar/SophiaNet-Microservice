@@ -5,10 +5,15 @@ from fastapi.testclient import TestClient
 from langchain_core.language_models.fake_chat_models import FakeListChatModel
 from agents.debate import build_debate
 from app import app
+from services.guardrails import guard_request
 from tools.review_tools import calculate
 
 
 class DebateTests(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        app.dependency_overrides[guard_request] = lambda: None
+        self.addCleanup(app.dependency_overrides.pop, guard_request, None)
     async def test_panel_order_and_final_answer(self):
         graph = build_debate(FakeListChatModel(responses=['proposal', 'correction', 'synthesis']), [])
         updates = [event async for event in graph.astream({'messages': [('user', 'question')]}, stream_mode='updates')]

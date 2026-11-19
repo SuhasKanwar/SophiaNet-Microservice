@@ -6,10 +6,15 @@ from fastapi.testclient import TestClient
 from langchain_core.language_models.fake_chat_models import FakeListChatModel
 
 from app import app
+from services.guardrails import guard_request
 from services.adk_summary import summarize
 
 
 class ADKTests(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        app.dependency_overrides[guard_request] = lambda: None
+        self.addCleanup(app.dependency_overrides.pop, guard_request, None)
     async def test_real_adk_runner_and_request_isolation(self):
         results = await asyncio.gather(*[
             summarize(f"Source {i}", FakeListChatModel(responses=[f"Summary {i}"]))

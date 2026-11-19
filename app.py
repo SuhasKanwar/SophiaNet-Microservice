@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -9,6 +9,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 load_dotenv()
 
 from api.routes import generation, health, tools, debate, scripts, study, papers
+from services.guardrails import guard_request
 from utils.exception import SophiaNetException
 from utils.logger import logger
 
@@ -22,7 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 for router in (health.router, generation.router, tools.router, debate.router, scripts.router, study.router, papers.router):
-    app.include_router(router)
+    app.include_router(router, dependencies=[] if router is health.router else [Depends(guard_request)])
 
 
 @app.exception_handler(StarletteHTTPException)

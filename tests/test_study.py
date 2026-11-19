@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 from pydantic import ValidationError
 from app import app
+from services.guardrails import guard_request
 from services.study import StudyService
 
 
@@ -13,6 +14,10 @@ def valid_quiz():
 
 
 class StudyTests(unittest.TestCase):
+
+    def setUp(self):
+        app.dependency_overrides[guard_request] = lambda: None
+        self.addCleanup(app.dependency_overrides.pop, guard_request, None)
     def service(self, data):
         model = Mock(); model.bind.return_value = model
         model.invoke.return_value = AIMessage(content=json.dumps(data))
