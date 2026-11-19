@@ -53,3 +53,15 @@ async def generate_image(payload: GenerateRequest = Depends(parse_request)) -> d
         raise HTTPException(400, "Use /generate-debate for agent-battleground commands.")
     payload.require_prompt()
     return await image_response(payload)
+
+
+@router.post("/generate-summary")
+async def generate_summary(payload: GenerateRequest = Depends(parse_request)) -> dict:
+    from services.adk_summary import summarize
+    from utils.metrics import Timer
+    payload.require_prompt()
+    if payload.files or payload.command:
+        raise HTTPException(400, "Summary endpoint accepts text without commands or attachments.")
+    with Timer() as timer:
+        result = await summarize(payload.prompt)
+    return {**text_response({"text": result, "performance_metrics": {"latency_ms": timer.elapsed_ms}}), "engine": "google-adk"}
