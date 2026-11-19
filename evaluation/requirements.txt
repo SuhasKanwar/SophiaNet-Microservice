@@ -1,0 +1,2 @@
+# Optional evaluation plotting dependency; install inside sophianet-venv.
+matplotlib==3.11.2

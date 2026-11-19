@@ -1,0 +1,13 @@
+{
+  "created_at": "2026-11-19T19:41:22.084428+00:00",
+  "cases": 40,
+  "gsm8k_cases": 8,
+  "synthetic_cases": 32,
+  "gsm8k_revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+  "source_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/grade_school_math/data/test.jsonl",
+  "source_sha256": "3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14",
+  "dataset_sha256": "17282adbecfeacf8e44f01a92979057be8c26def2ecb57fa89587b60a18e0e08",
+  "selection": "First eight test rows, no filtering based on model output; remaining cases authored before execution.",
+  "license": "GSM8K subset: original MIT notice retained in sources/gsm8k-LICENSE.txt. Synthetic fixtures: CC0-1.0.",
+  "scope": "Current-system workflow evaluation, not the full GSM8K benchmark or an architecture comparison."
+}
