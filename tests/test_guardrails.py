@@ -36,6 +36,7 @@ class GuardTests(unittest.TestCase):
             response = client.post("/generate-chat", json={"prompt": "Explain safety", "session_history": [{"role": "user", "content": "prior context"}]})
             self.assertEqual(response.status_code, 200)
             self.assertIn("prior context", model.ainvoke.call_args.args[0][-1].content)
+            self.assertEqual(client.post("/generate-chat", data={"prompt": "Read notes", "session_history": "[]"}, files={"files": ("n.txt", b"notes")}).status_code, 200)
             for bad in ['{}', '{"decision":"maybe"}', 'not json']:
                 model.ainvoke.return_value = AIMessage(content=bad)
                 self.assertEqual(client.post("/generate-chat", json={"prompt": "hello"}).status_code, 503)
@@ -43,5 +44,5 @@ class GuardTests(unittest.TestCase):
             response = client.post("/generate-chat", json={"prompt": "hello"})
             self.assertEqual(response.status_code, 503)
             self.assertNotIn("secret provider detail", response.text)
-            self.assertEqual(assistant.generate_response.call_count, 1)
+            self.assertEqual(assistant.generate_response.call_count, 2)
             self.assertEqual(client.post("/generate-chat", json={"prompt": "x" * 100001}).status_code, 413)

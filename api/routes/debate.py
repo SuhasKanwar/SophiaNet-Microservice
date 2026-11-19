@@ -24,6 +24,8 @@ def get_debate():
 
 @router.post("/generate-debate")
 async def generate_debate(request: Request, payload: GenerateRequest = Depends(parse_request)):
+    if payload.command not in (None, "agent-battleground"):
+        raise HTTPException(400, "Use /generate for other slash commands.")
     payload.require_prompt()
     if payload.files:
         raise HTTPException(400, "Debate currently supports text only. Use standard chat for attachments.")

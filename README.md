@@ -126,7 +126,7 @@ python -m uvicorn app:app --host 0.0.0.0 --port 8000
 `https://integrate.api.nvidia.com/v1`. The already installed `langchain-openai`
 client uses NVIDIA's OpenAI-compatible Chat Completions API; it does not call
 OpenAI or Groq. LangGraph and the remaining integration libraries are already
-pinned in `requirements.txt`, so this refactor adds no dependency.
+pinned in `requirements.txt`, including Google ADK for summarization.
 
 Sampling, timeouts, output limits, chunk sizes and the graph recursion limit live
 in `config/models.py`; the NVIDIA and specialist instructions live in
@@ -224,3 +224,7 @@ limits should also be enforced by the deployment gateway; liveness does not veri
 provider credentials. Existing CORS and image-generation behavior remain in place.
 
 Current image setup and diagram UI: [Local image generation and diagram studio](docs/local_images_and_diagrams.md). This guide supersedes historical hosted-image verification notes above.
+
+## Chat commands and safety
+
+Google ADK summarization, model-based input screening, command transport and current verification are documented in [chat commands and safety](docs/chat_commands_and_safety.md). Start Python with `./scripts/run.sh` and run backend tests with `./scripts/test.sh`; both explicitly use Conda `sophianet-venv`.

@@ -47,7 +47,7 @@ class FilePayload(BaseModel):
 
 
 class GenerateRequest(BaseModel):
-    command: Literal["agent-battleground"] | None = None
+    command: Literal["agent-battleground", "summarize", "research", "quiz", "flashcards"] | None = None
     prompt: str = Field(default="", max_length=100000)
     code: str = Field(default="", max_length=100000)
     session_history: list[HistoryMessage] = Field(default_factory=list, max_length=200)

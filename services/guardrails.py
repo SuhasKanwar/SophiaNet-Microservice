@@ -62,4 +62,8 @@ async def guard_request(request: Request):
     except (ValueError, TypeError):
         return
     if any(isinstance(value, str) and value.strip() for value in data.values()):
-        await check_prompt(data)
+        try:
+            await check_prompt(data)
+        except HTTPException:
+            await request.close()
+            raise
