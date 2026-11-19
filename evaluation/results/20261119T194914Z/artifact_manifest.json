@@ -1,0 +1,17 @@
+{
+  "created_at": "2026-11-19T19:57:29.329669+00:00",
+  "sha256": {
+    "REPORT.md": "6f69de8bf3b161a2a17d6c404ff743c9c5282be530b99f2956a159c3ff0bb5bd",
+    "attempts.csv": "564b08f35f9948eba0ed568bc4c520a0f445ee1c10b121bfe45180416ebf82fb",
+    "attempts.jsonl": "1ef641f6e533b995c880bef64e58ffad38fdef8797ee5ccbc77050cfb27862d8",
+    "case_results_heatmap.png": "dab0e3eb3598318a8b29c37f97dcda3c0e4bd0c002e3b4ca3fa83425accb7e1e",
+    "dataset.jsonl": "17282adbecfeacf8e44f01a92979057be8c26def2ecb57fa89587b60a18e0e08",
+    "debate_stage_heatmap.png": "f8ad56daf5d36cac109ab992ef33a27123cc0f0c845a047c4304ba710e03ce84",
+    "latency_boxplot.png": "d6e1603921d2a02663c0476bc1a6bfc4a9e468724480b8712f3b0ecaa2a88e0b",
+    "mermaid_validation.json": "3a0e493e3c34d8dda064fc178fb995e3831a1738b96230e249e6020dbfc007b1",
+    "metadata.json": "f96413c69067e3ccc26ca1ba711f994f21c6d31234afa7927c7228f63422a61b",
+    "rescored_attempts.jsonl": "395d9c09a464b3a6581172eb67b228675ab718b336079f91cef83a3223028a6e",
+    "scoring_errata.json": "c3c5a6bfbc02d9be28c68992ea7e7fd1b17c2a6d2722eb935d96cfa6a43e4677",
+    "summary.json": "3f5a36878b2ed46c09b0a65456a90d744806ca9bc0c02e0748b216ba076dfc43"
+  }
+}

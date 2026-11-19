@@ -91,7 +91,7 @@ This is one summary table for the presentation's literature-review slide. The li
 | 7 | CrewAI and ADK only | Both are used. **Not compliant yet:** replace active LangGraph orchestration and remove other agent-framework paths |
 | 8 | Guardrails and validation callbacks | Input filter, request schemas and URL restrictions exist. **Partial:** callback validation of tool returns, retrieved content and final artifacts |
 | 9 | Tracing and provenance | Source metadata and basic logs exist. **Pending:** correlated, durable end-to-end spans and audit events |
-| 10 | Around 40+ runs, personas, cost/time and boxplots | Functional checks exist. **Pending:** the controlled dataset and experiment below; no benchmark distributions yet |
+| 10 | Around 40+ runs, personas, cost/time and boxplots | **Current-system evaluation recorded:** 40 cases and 120 live attempts, raw results/plots in [evaluation results](evaluation/results/comparison/README.md). The controlled architecture study below remains pending |
 | 11 | Cloud deployment | **Planned on AWS:** no deployed endpoint, infrastructure acceptance record or measured AWS cost is asserted |
 
 ## MAS architecture: current and target
@@ -167,11 +167,11 @@ A proposed agent heat map places agents on rows and execution phases/time bucket
 
 ## Experimental design and results boundary
 
-**Dataset and benchmark are planned; no 40-run evaluation has been performed.** Build 40 labeled cases from **5 personas × 2 prompt structures × 4 task families**. Personas: novice learner, advanced learner, educator, time-constrained researcher, adversarial user. Prompt structures: direct task brief and ReAct-style action/observation instructions. Task families: grounded document answer, scholarly research, educational script and structured study artifact. Adversarial cases use matched benign tasks with synthetic injection/abusive-content variants and explicit expected allow/block outcomes.
+**The balanced architecture-comparison dataset and benchmark below remain planned.** A separate [current-system evaluation](evaluation/results/comparison/README.md) has now run 40 heterogeneous cases across two traffic protocols (120 live attempts); it does not compare the unimplemented architectures. Build 40 labeled cases from **5 personas × 2 prompt structures × 4 task families**. Personas: novice learner, advanced learner, educator, time-constrained researcher, adversarial user. Prompt structures: direct task brief and ReAct-style action/observation instructions. Task families: grounded document answer, scholarly research, educational script and structured study artifact. Adversarial cases use matched benign tasks with synthetic injection/abusive-content variants and explicit expected allow/block outcomes.
 
 Run the same 40 cases against **3 orchestration variants × 2 messaging variants = 240 end-to-end runs** (40 per configuration). All variants use only ADK/CrewAI. The production candidate always uses Blackboard; P2P is an experimental control. Freeze source snapshots, model/configuration, prompts, evidence, validation rules and agent/tool budgets. Randomize execution order, tag cold/warm starts, record concurrency and report failures in the denominator. Replicate a subset to separate model variability from case-to-case variation.
 
-Dataset records should contain case/persona/task IDs, exact prompt and template version, source hashes/URLs, reference answer or rubric, expected citations, schema and safety outcome. Raw run records add architecture/messaging, completion/error status, public intermediate artifacts, per-agent and end-to-end duration, time to first visible event, tool calls, token usage, retries and cost inputs. Keep the dataset, raw runs, plotting code and pricing snapshot with the evaluation artifacts when implemented; they do not exist as a completed benchmark today.
+Dataset records should contain case/persona/task IDs, exact prompt and template version, source hashes/URLs, reference answer or rubric, expected citations, schema and safety outcome. Raw run records add architecture/messaging, completion/error status, public intermediate artifacts, per-agent and end-to-end duration, time to first visible event, tool calls, token usage, retries and cost inputs. Keep the dataset, raw runs, plotting code and pricing snapshot with the evaluation artifacts when implemented; the proposed architecture-comparison benchmark is not completed by the current-system runs.
 
 Evaluate reference-supported correctness, citation precision/coverage, schema validity, safe blocking/false blocking and tool success. A separately configured LLM judge may supplement reference/human scoring; disclose its model/prompt, calibrate it on a human-reviewed subset and report disagreements. Existing prompt-versus-answer BLEU/ROUGE and transformed CLIP scores are diagnostics, not correctness or learning-outcome evidence.
 
@@ -187,7 +187,7 @@ study cost = sum(attempted run costs) + shared infrastructure allocation
 
 Use dated rates and the selected AWS region; include guard, routing, manager, retries, ALB/NAT/database/tracing overhead and idle time. Missing provider usage/rates means unknown or estimated cost, not zero. No numeric AWS cost, latency advantage or quality improvement is currently claimed.
 
-Previous local verification recorded 54 backend tests and successful live command/debate and guard checks; see [verification details](docs/chat_commands_and_safety.md). These are historical functional receipts, not this controlled experiment or AWS acceptance. Re-run checks against the final compliant implementation.
+The latest backend/scorer suite passes 62 tests, and the [stored evaluation](evaluation/results/comparison/README.md) includes live workflow measurements; earlier command/debate and guard receipts are historical; see [verification details](docs/chat_commands_and_safety.md). These are historical functional receipts, not this controlled experiment or AWS acceptance. Re-run checks against the final compliant implementation.
 
 ## AWS deployment design — planned
 
@@ -280,3 +280,7 @@ The report outline is: **1 Introduction (p.1); 2 Problem Statement (pp.2–3); 3
 The current stack is Python/FastAPI/Pydantic, CrewAI, ADK, NVIDIA transport, local ML/OCR and S3 libraries, with legacy active LangGraph orchestration awaiting migration. The final agentic stack is CrewAI + ADK only. The companion UI uses Next.js, React, TypeScript, Tailwind, NextAuth, Prisma, Mermaid and Markdown rendering.
 
 The current outcome is a working local educational-tool integration with explicit compliance gaps. A completed submission requires the framework migration, interoperable protocols, traceable Blackboard workflow, reproducible evaluation and AWS deployment evidence. References are linked at their claims and preserved in the [research catalogue](docs/research/papers.json); use those records for the final references slide/report.
+
+## Stored current-system evaluation
+
+[Dataset, protocol, raw results and plots](evaluation/README.md) cover eight fixed public GSM8K questions and 32 synthetic workflow fixtures. The two-worker/two-repeat run passed 42/80 task checks with 35 HTTP 5xx/transport failures; the separately paced single-worker run passed 36/40 with two such failures. These heterogeneous acceptance checks are not a general accuracy score. Exact responses, references, original/corrected scoring, latency boxplots, heat maps and environment records are preserved. Cost/token usage is unknown rather than assumed zero. [Read the findings](evaluation/results/comparison/README.md).

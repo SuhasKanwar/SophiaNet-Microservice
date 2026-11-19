@@ -88,7 +88,7 @@ def generate(directory):
         fig.colorbar(plot,ax=ax,label='seconds');fig.tight_layout();fig.savefig(directory/'debate_stage_heatmap.png',dpi=160);plt.close(fig)
         summary['debate_observed_stage_seconds']=[{'attempt':name,**durations} for name,durations in stage_rows]
     (directory/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
-    rows=['| Workflow | Attempts | Passed checks | Availability failures | p50 s | p95 s |','| --- | ---: | ---: | ---: | ---: | ---: |']
+    rows=['| Workflow | Attempts | Passed checks | HTTP 5xx/transport failures | p50 s | p95 s |','| --- | ---: | ---: | ---: | ---: | ---: |']
     for group,item in summary['groups'].items(): rows.append(f"| {group} | {item['attempts']} | {item['passed']} | {item['availability_failures']} | {item['p50_seconds']} | {item['p95_seconds']} |")
     failures=['| Case / repeat | HTTP | Failed checks |','| --- | ---: | --- |']
     for record in records:
@@ -106,7 +106,7 @@ This evaluates current implemented workflows. It does not compare unimplemented 
 
 {scoring_note}
 
-**{summary['passed']}/{len(records)} attempts passed all case-specific acceptance checks.** This aggregate mixes schema, fact-coverage, exact-answer and expected-rejection checks; it is NOT a system accuracy score. **{summary['availability_failures']} attempts had transport/upstream availability failures.** Expected 400/403 rejections can pass. HTTP 200 streaming errors fail. Provider failures are retained, not silently rerun or removed.
+**{summary['passed']}/{len(records)} attempts passed all case-specific acceptance checks.** This aggregate mixes schema, fact-coverage, exact-answer and expected-rejection checks; it is NOT a system accuracy score. **{summary['availability_failures']} attempts had HTTP 429/5xx or transport failures (an operational bucket, not a diagnosis of every cause).** Expected 400/403 rejections can pass. HTTP 200 streaming errors fail. Provider failures are retained, not silently rerun or removed.
 
 '''+ '\n'.join(rows)+'''
 

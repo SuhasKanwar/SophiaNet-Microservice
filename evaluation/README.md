@@ -20,3 +20,9 @@ Every attempted case is flushed to append-only JSONL with raw responses, checks,
 Checks differ by workflow: numeric exact-match, source fact coverage, schema validity, AST syntax/function presence, diagram declaration/labels, known-title retrieval, clean-input OCR, video topic coverage, S3 readback or expected rejection. The aggregate is an **acceptance-check rate**, not general accuracy. No independent hallucination, pedagogy or image-quality score is implied. Details and denominators appear in each report.
 
 Dollar cost/token usage remain unknown because the application drops aggregate model usage and account rates are not supplied. Do not fill missing costs with zeros. No AWS deployment, framework migration, architecture comparison or human/LLM-judge study is performed by this harness. Authenticated browser verification is stored separately in the web repository.
+
+## Recorded results
+
+See [current-system results](results/comparison/README.md) for the completed traffic protocols, stored raw observations and plots. These runs are not the proposed architecture-comparison study.
+
+The original scoring missed the valid Tuesday/Tuesdays variant. `scoring_errata.json` records the correction; run `python -m evaluation.rescore <result-directory>` inside Conda before regenerating a report to produce a separate corrected view without replacing raw outputs. For a paced run use `--repeats 1 --workers 1 --interval 6`. To regenerate the protocol comparison use `python -m evaluation.compare <first-result-directory> <paced-result-directory>`.

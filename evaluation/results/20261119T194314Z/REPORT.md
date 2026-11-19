@@ -10,9 +10,9 @@ This evaluates current implemented workflows. It does not compare unimplemented 
 
 Scoring v1.1 applies the documented Tuesday/Tuesdays reference-alias correction; original attempts/checks are unchanged. See [scoring errata](scoring_errata.json) and [rescored observations](rescored_attempts.jsonl).
 
-**42/80 attempts passed all case-specific acceptance checks.** This aggregate mixes schema, fact-coverage, exact-answer and expected-rejection checks; it is NOT a system accuracy score. **35 attempts had transport/upstream availability failures.** Expected 400/403 rejections can pass. HTTP 200 streaming errors fail. Provider failures are retained, not silently rerun or removed.
+**42/80 attempts passed all case-specific acceptance checks.** This aggregate mixes schema, fact-coverage, exact-answer and expected-rejection checks; it is NOT a system accuracy score. **35 attempts had HTTP 429/5xx or transport failures (an operational bucket, not a diagnosis of every cause).** Expected 400/403 rejections can pass. HTTP 200 streaming errors fail. Provider failures are retained, not silently rerun or removed.
 
-| Workflow | Attempts | Passed checks | Availability failures | p50 s | p95 s |
+| Workflow | Attempts | Passed checks | HTTP 5xx/transport failures | p50 s | p95 s |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | code | 2 | 0 | 2 | 1.479 | 1.526 |
 | diagram | 6 | 2 | 4 | 1.459 | 1.688 |
@@ -106,3 +106,7 @@ Billed cost and token usage are **unknown**, not zero: current endpoints omit ag
 Debate role intervals, when available, are derived from public start/contribution arrival times and include scheduling/buffering effects. They are proxies, not callback-instrumented per-agent spans. ADK/CrewAI per-agent internal timings are not exposed and are not invented. The accompanying browser verification is separate from this direct API suite. Human educational review, citation support grading, full image semantics, generated-code execution, load testing and a calibrated LLM judge were not performed.
 
 ![Observed debate stage times](debate_stage_heatmap.png)
+
+## Supplementary Mermaid parser validation
+
+2/2 generated diagrams parsed with the installed frontend Mermaid library. See [parser receipts](mermaid_validation.json). Parsing does not establish factual or visual quality.

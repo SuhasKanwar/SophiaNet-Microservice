@@ -1,0 +1,23 @@
+[
+  {
+    "run": "20261119T194914Z",
+    "case_id": "26-diagram",
+    "repeat": 1,
+    "valid": true,
+    "parser": "Mermaid 11.14.0, strict security, same fence removal as frontend"
+  },
+  {
+    "run": "20261119T194914Z",
+    "case_id": "27-diagram",
+    "repeat": 1,
+    "valid": true,
+    "parser": "Mermaid 11.14.0, strict security, same fence removal as frontend"
+  },
+  {
+    "run": "20261119T194914Z",
+    "case_id": "25-diagram",
+    "repeat": 1,
+    "valid": true,
+    "parser": "Mermaid 11.14.0, strict security, same fence removal as frontend"
+  }
+]
